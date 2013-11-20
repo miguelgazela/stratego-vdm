@@ -1,0 +1,40 @@
+/**
+  Board.
+
+  <p>
+  description
+  </p>
+
+  @version
+  @author
+*/
+
+class Board
+
+types
+
+values
+
+instance variables
+    private pieces: set of Piece;
+    private lakes: set of Coord;
+operations
+
+-- constructor for Board
+public Board: () ==> Board
+Board() == ();
+
+-- consult operations
+public getPieces() res : set of Piece == 
+    return pieces;
+public getNumPieces() res : nat == is not yet specified;
+
+-- change operations
+public addPiece(p : Piece) == is not yet specified;
+public isFree(c : Coord) res : bool == is not yet specified;
+private initLakes() == is not yet specified;
+
+
+functions
+
+end Board

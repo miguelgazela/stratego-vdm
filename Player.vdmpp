@@ -1,0 +1,39 @@
+/**
+  Player.
+
+  <p>
+  description
+  </p>
+
+  @version
+  @author
+*/
+
+class Player
+
+types
+    public String = seq of char;
+values
+
+instance variables
+    private name: String;
+    private pieces: set of Piece;
+operations
+
+-- constructor for Player
+public Player: () ==> Player
+Player() == ();
+
+-- consult operations
+public getName() res : String ==
+    return name;
+public getPieces() res : set of Piece ==
+    return pieces;
+
+-- change operations
+public addPiece(p : Piece) == is not yet specified;
+public setPieces(ps : set of Piece) == is not yet specified;
+
+functions
+
+end Player

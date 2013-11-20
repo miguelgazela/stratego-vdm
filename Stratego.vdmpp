@@ -1,0 +1,40 @@
+/**
+  Stratego.
+
+  <p>
+  description
+  </p>
+
+  @version
+  @author
+*/
+
+class Stratego
+
+types
+
+values
+
+instance variables
+    private playerOne: Player;
+    private playerTwo: Player;
+    private turn: nat1
+operations
+
+-- constructor for Stratego
+public Stratego: () ==> Stratego
+Stratego() == ();
+
+-- consult operations
+public getTurn() res : nat1 == is not yet specified;
+public getPlayerOne() res : Player == is not yet specified;
+public getPlayerTwo() res : Player == is not yet specified;
+public getTurnPlayer() res : Player == is not yet specified;
+
+-- change operations
+public updateTurn() == is not yet specified;
+public isGameOver() == is not yet specified;
+
+functions
+
+end Stratego

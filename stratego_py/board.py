@@ -3,7 +3,7 @@ from cell import Cell
 class Board(object):
 
     def __init__(self):
-        self.cells = [[Cell() for _ in range(10)] for _ in range(10)]
+        self.cells = [[None for _ in range(10)] for _ in range(10)]
         self.create_lakes()
 
     def create_lakes(self):

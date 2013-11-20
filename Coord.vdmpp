@@ -1,0 +1,35 @@
+/**
+  Coord.
+
+  <p>
+  description
+  </p>
+
+  @version
+  @author
+*/
+
+class Coord
+
+types
+
+values
+
+instance variables
+    public x : nat;
+    inv x >= 0 and x <= 9;
+    public y : nat;
+    inv y >= 0 and y <= 9;
+operations
+
+-- constructor for Coord
+public Coord(var_x: nat, var_y: nat) res: Coord ==
+(
+    x := var_x;
+    y := var_y;
+    return self;
+)
+
+functions
+
+end Coord

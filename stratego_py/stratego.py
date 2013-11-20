@@ -15,8 +15,9 @@ class Game(object):
 
     def run(self):
 
-        # place p1 pieces
-        # place p2 pieces
+        # place players pieces
+        self.place_pieces(self.player_one)
+        self.place_pieces(self.player_two)
 
         # start the game
         while not self.game_over:
@@ -28,6 +29,9 @@ class Game(object):
     def check_game_over(self):
         pass 
 
+    def place_pieces(self, player):
+        pass
+
     def distribute_pieces(self):
         # list of tuples with rank - num_pieces
         pieces = [
@@ -35,17 +39,13 @@ class Game(object):
             (7,3), (8,2), (9,1), (10,1)
         ]
 
-        self.player_one.add_pieces([
-            Piece(rank, self.player_one)
-            for rank, quantity in pieces
-            for _ in range(quantity)
-        ])
+        self.player_one.add_pieces(self.build_pieces(pieces, self.player_one))
+        self.player_two.add_pieces(self.build_pieces(pieces, self.player_two))
 
-        self.player_two.add_pieces([
-            Piece(rank, self.player_one)
-            for rank, quantity in pieces
-            for _ in range(quantity)
-        ])
+    def build_pieces(self, p_info, player):
+        return [Piece(rank, player)
+                for rank, quantity in p_info
+                for _ in range(quantity)]
 
 
 
