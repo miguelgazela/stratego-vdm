@@ -14,16 +14,34 @@ class Stratego
 types
 
 values
+    -- rank -> num_pieces
+    private FLAG: map nat to nat1 = {0 |-> 1};
+    private SPY: map nat to nat1 = {1 |-> 1};
+    private SCOUT: map nat to nat1 = {2 |-> 8};
+    private MINER: map nat to nat1 = {3 |-> 5};
+    private SERGEANT: map nat to nat1 = {4 |-> 4};
+    private LIUETENANT: map nat to nat1 = {5 |-> 4};
+    private CAPTAIN: map nat to nat1 = {6 |-> 4};
+    private MAJOR: map nat to nat1 = {7 |-> 3};
+    private COLONEL: map nat to nat1 = {8 |-> 2};
+    private GENERAL: map nat to nat1 = {9 |-> 1};
+    private MARSHAL: map nat to nat1 = {10 |-> 1};
+    private BOMB: map nat to nat1 = {11 |-> 6};
 
 instance variables
     private playerOne: Player;
     private playerTwo: Player;
-    private turn: nat1
+    private board: Board;
+    private turn: nat1;
 operations
 
 -- constructor for Stratego
-public Stratego: () ==> Stratego
-Stratego() == ();
+public Stratego() res: Stratego == (
+    board := new Board();
+    playerOne := new Player();
+    playerTwo := new Player();
+    return self;   
+);
 
 -- consult operations
 public getTurn() res : nat1 == is not yet specified;

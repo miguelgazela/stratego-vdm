@@ -16,7 +16,8 @@ types
 values
 
 instance variables
-    private pieces: set of Piece;
+    private board: seq of map nat to [Piece];
+    private numPiecesOnBoard: nat;
     private lakes: set of Coord;
 operations
 
@@ -25,12 +26,15 @@ public Board: () ==> Board
 Board() == ();
 
 -- consult operations
-public getPieces() res : set of Piece == 
-    return pieces;
-public getNumPieces() res : nat == is not yet specified;
+public getPieces() res : set of Piece == is not yet specified;
+
+public getNumPieces() res : nat == 
+    return numPiecesOnBoard
+    ext rd numPiecesOnBoard
+    post res = numPiecesOnBoard;
 
 -- change operations
-public addPiece(p : Piece) == is not yet specified;
+public addPiece(p : Piece, x: nat, y: nat) == is not yet specified;
 public isFree(c : Coord) res : bool == is not yet specified;
 private initLakes() == is not yet specified;
 

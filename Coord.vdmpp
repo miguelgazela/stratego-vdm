@@ -20,15 +20,15 @@ instance variables
     inv x >= 0 and x <= 9;
     public y : nat;
     inv y >= 0 and y <= 9;
+
 operations
 
 -- constructor for Coord
-public Coord(var_x: nat, var_y: nat) res: Coord ==
-(
-    x := var_x;
-    y := var_y;
+public Coord(x_: nat, y_: nat) res: Coord == (
+    x := x_;
+    y := y_;
     return self;
-)
+);
 
 functions
 
