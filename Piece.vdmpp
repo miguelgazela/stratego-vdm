@@ -20,6 +20,7 @@ instance variables
     private rank: nat;
     inv rank >= 0 and rank <= 11;
     private position: [Coord] := nil;
+    private color: <Blue> | <Red>;
 
 operations
 
@@ -34,6 +35,12 @@ public getRank() res : nat ==
   return rank
   ext rd rank
   post res = rank;
+
+public getColor() res : nat ==
+  return color
+  ext rd color
+  post res = color;
+
 
 public getPosition() res : [Coord] ==
   return position

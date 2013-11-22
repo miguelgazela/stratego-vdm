@@ -45,13 +45,19 @@ public Stratego() res: Stratego == (
 
 -- consult operations
 public getTurn() res : nat1 == is not yet specified;
-public getPlayerOne() res : Player == is not yet specified;
-public getPlayerTwo() res : Player == is not yet specified;
+public getPlayerOne() res : Player ==
+    return playerOne;
+
+public getPlayerTwo() res : Player ==
+    return playerTwo;
+
 public getTurnPlayer() res : Player == is not yet specified;
 
 -- change operations
 public updateTurn() == is not yet specified;
 public isGameOver() == is not yet specified;
+
+
 
 functions
 
