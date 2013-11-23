@@ -24,11 +24,12 @@ instance variables
 operations
 
 -- constructor for Coord
-public Coord(x_: nat, y_: nat) res: Coord == (
-    x := x_;
-    y := y_;
-    return self;
-);
+public Coord: nat * nat ==> Coord
+Coord(x_, y_) == (
+  x := x_;
+  y := y_;
+  return self
+)
 
 functions
 
