@@ -21,19 +21,26 @@ instance variables
     inv score >= 0;
     private pieces: seq of Piece := [];
     private deadPieces : seq of Piece := [];
+    private color: Piece`ColorPiece;
 
 operations
 
 -- constructor for Player
-public Player: String ==> Player
-Player(name_) == (
-    name := name_;                 
+public Player: String * Piece`ColorPiece ==> Player
+Player(name_, color_) == (
+    name := name_;
+    color := color_;                 
 );
 
 -- consult operations
 public getName: () ==> String
 getName() == (
     return name;
+);
+
+public getColor: () ==> Piece`ColorPiece
+getColor() == (
+    return color;
 );
 
 public getPieces: () ==> seq of Piece

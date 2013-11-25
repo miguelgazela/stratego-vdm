@@ -14,44 +14,165 @@ class Stratego
 types
 
 values
-    -- rank -> num_pieces
-    private FLAG: map nat to nat1 = {0 |-> 1};
-    private SPY: map nat to nat1 = {1 |-> 1};
-    private SCOUT: map nat to nat1 = {2 |-> 8};
-    private MINER: map nat to nat1 = {3 |-> 5};
-    private SERGEANT: map nat to nat1 = {4 |-> 4};
-    private LIUETENANT: map nat to nat1 = {5 |-> 4};
-    private CAPTAIN: map nat to nat1 = {6 |-> 4};
-    private MAJOR: map nat to nat1 = {7 |-> 3};
-    private COLONEL: map nat to nat1 = {8 |-> 2};
-    private GENERAL: map nat to nat1 = {9 |-> 1};
-    private MARSHAL: map nat to nat1 = {10 |-> 1};
-    private BOMB: map nat to nat1 = {11 |-> 6};
+    --private FLAG: map nat to nat1 = {0 |-> 1};
+    --private SPY: map nat to nat1 = {1 |-> 1};
+    --private SCOUT: map nat to nat1 = {2 |-> 8};
+    --private MINER: map nat to nat1 = {3 |-> 5};
+    --private SERGEANT: map nat to nat1 = {4 |-> 4};
+    --private LIUETENANT: map nat to nat1 = {5 |-> 4};
+    --private CAPTAIN: map nat to nat1 = {6 |-> 4};
+    --private MAJOR: map nat to nat1 = {7 |-> 3};
+    --private COLONEL: map nat to nat1 = {8 |-> 2};
+    --private GENERAL: map nat to nat1 = {9 |-> 1};
+    --private MARSHAL: map nat to nat1 = {10 |-> 1};
+    --private BOMB: map nat to nat1 = {11 |-> 6};
+    private SCOUT: nat = 2;
 
 instance variables
+    private pieceQuantities: seq of seq of real;
     private playerOne: Player;
     private playerTwo: Player;
     private board: Board;
-    private turn: nat1;
+    private currentPlayer: Player;
+    -- inv este plauer tem que ser o plauerone ou o player2
 operations
 
 -- constructor for Stratego
 public Stratego() res: Stratego == (
     board := new Board();
-    playerOne := new Player();
-    playerTwo := new Player();
-    return self;   
+    playerOne := new Player("P1", <Blue>);
+    playerTwo := new Player("P2", <Red>);
+    currentPlayer := playerOne;
+    initPieceQuantities();
+    initGame();
+    return self;
 );
 
 -- consult operations
-public getTurn() res : nat1 == is not yet specified;
-public getPlayerOne() res : Player ==
-    return playerOne;
+    
+private initPieceQuantities: () ==> ()
+initPieceQuantities() == (
+    pieceQuantities := [
+        [0,1], [1,1], [2,8], [3,5],
+        [4,4], [5,4], [6,4], [7,3],
+        [8,2], [9,1], [10,1], [11,6]
+    ]
+);
 
-public getPlayerTwo() res : Player ==
-    return playerTwo;
+public initGame: () ==> ()
+initGame() == (
+    givePiecesP1();
+    givePiecesP2();
+    placeInitialPieces();
+);
+  
+public givePiecesP1: () ==> ()
+givePiecesP1() == (
+    buildPieces(<Blue>, playerOne);
+);
 
-public getTurnPlayer() res : Player == is not yet specified;
+public givePiecesP2: () ==> ()
+givePiecesP2() == (
+    buildPieces(<Red>, playerTwo);
+);
+
+private buildPieces: Piece`ColorPiece * Player ==> ()
+buildPieces(color, player) == (
+    for all pieceConf in set elems pieceQuantities do (
+        for all i in set {1,...,pieceConf(2)} do (
+            player.addPiece(new Piece(pieceConf(1), color));
+        );
+    );
+);
+--pre color tem que ser <Blue> ou <Red>
+--post ver que o jogador tem 40 pecas depois disto
+    
+public placeInitialPieces: () ==> ()
+placeInitialPieces() == (
+    board.placePiecesP1(playerOne.getPieces());
+    board.placePiecesP2(playerTwo.getPieces()); 
+);
+    
+    
+public getPlayerOne: () ==> Player
+getPlayerOne() == (
+    return playerOne;    
+);
+    
+public getPlayerTwo: () ==> Player
+getPlayerTwo() == (
+    return playerTwo;    
+);
+ 
+public getCurrentPlayer: () ==> Player
+getCurrentPlayer() == (
+    return currentPlayer;    
+);
+
+public getBoard: () ==> Board
+getBoard() == (
+    return board;
+);
+
+public makeMove: Coord * Coord ==> bool
+makeMove(srcPos, destPos) == (
+    dcl srcPiece: Piece;
+    dcl destPiece: Piece;
+    
+    if board.isPositionFree(srcPos) or board.isPositionLake(srcPos)
+    then return false;
+    
+    srcPiece := board.getPieceAtPosition(srcPos);
+    
+    if srcPiece.getColor() <> currentPlayer.getColor()
+    then return false
+    elseif board.isPositionLake(destPos)
+    then return false;
+    
+    if board.isPositionFree(destPos)
+    then return checkMoveIsValid(srcPos, destPos, srcPiece);
+    
+    destPiece := board.getPieceAtPosition(destPos);
+    
+    if destPiece.getColor() = currentPlayer.getColor()
+    then return false
+    else return true; -- TODO temporary
+    
+    --makeBattle(srcPiece, destPiece);
+    --return true;
+);
+
+public checkMoveIsValid: Coord * Coord * Piece ==> bool
+checkMoveIsValid(srcPos, destPos, srcPiece) == (
+    if srcPos.getX() <> destPos.getX() and srcPos.getY() <> destPos.getY()
+    then return false;
+    
+    -- check middle positions
+    if not middlePositionsAreFree(srcPos, destPos)
+    then return false
+    else return true; -- TODO temporary
+);
+    
+public middlePositionsAreFree: Coord * Coord ==> bool
+middlePositionsAreFree(srcPos, destPos) == (
+    if srcPos.getY() > destPos.getY() --norte
+    then (
+        return false;
+    )
+    elseif srcPos.getY() < destPos.getY() --sul
+    then (
+        return false;
+    )
+    elseif srcPos.getX() > destPos.getX() --oeste
+    then (
+        return false;
+    )
+    elseif srcPos.getX() < destPos.getX() --este
+    then (
+        return false;  
+    )
+    else return true; -- TODO temporary
+);
 
 -- change operations
 public updateTurn() == is not yet specified;

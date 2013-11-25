@@ -46,18 +46,16 @@ isPositionLake(pos) == (
     return exists coord in set elems lakes & coord.getX() = pos.getX() and coord.getY() = pos.getY();
 );               
 
-public placePiecesP1: seq of Piece ==> seq of seq of [Piece]
+public placePiecesP1: seq of Piece ==> ()
 placePiecesP1(pieces) == (
     placePieces(pieces, 7, 10);
-    return board;
 )
 pre len pieces = 40;
 --todas as pecas tem de ter a mesma cor
 
-public placePiecesP2: seq of Piece ==> seq of seq of [Piece]
+public placePiecesP2: seq of Piece ==> ()
 placePiecesP2(pieces) == (
     placePieces(pieces, 1, 4);
-    return board;
 )
 pre len pieces = 40;
 --todas as pecas tem de ter a mesma cor
