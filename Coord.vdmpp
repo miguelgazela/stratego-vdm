@@ -20,7 +20,7 @@ instance variables
     public y : nat;
 
     inv x >= 0 and x <= 9;
-    inv y >= 0 and y <= 9;
+    --inv y >= 0 and y <= 9; TODO perguntar à prof
 
 operations
 

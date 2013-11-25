@@ -17,28 +17,81 @@ values
 
 instance variables
     private name: String;
-    private pieces: set of Piece;
+    private score: nat := 0;
+    inv score >= 0;
+    private pieces: seq of Piece := [];
+    private deadPieces : seq of Piece := [];
 
 operations
 
 -- constructor for Player
-public Player: () ==> Player
-Player() == ();
+public Player: String ==> Player
+Player(name_) == (
+    name := name_;                 
+);
 
 -- consult operations
-public getName() res : String ==
-    return name
-    ext rd name
-    post res = name;
+public getName: () ==> String
+getName() == (
+    return name;
+);
 
-public getPieces() res : set of Piece ==
-    return pieces
-    ext rd pieces
-    post res = pieces;
+public getPieces: () ==> seq of Piece
+getPieces() == (
+    return pieces;
+);
+
+public getDeadPieces: () ==> seq of Piece
+getDeadPieces() == (
+    return deadPieces;
+);
+
+public getScore: () ==> nat
+getScore() == (
+    return score;
+);
+
 
 -- change operations
-public addPiece(p : Piece) == is not yet specified;
-public setPieces(ps : set of Piece) == is not yet specified;
+public addPiece: Piece ==> ()
+addPiece(p) == (
+    pieces := pieces ^ [p];
+);
+-- pre p nao pode ser nulo
+-- post len pieces = len pieces~ + 1
+-- post pieces = pieces~ ^ [p]
+
+public setPieces: seq of Piece ==> ()
+setPieces(pieces_) == (
+    pieces := pieces_;
+);
+
+public placePiece: () ==> Piece
+placePiece() == (
+  dcl piece: Piece;
+  piece := hd pieces;
+  pieces := tl pieces;
+  return piece;
+);
+--pre len pieces > 0
+
+public addDeadPiece: Piece ==> ()
+addDeadPiece(p) == (
+    deadPieces := deadPieces ^ [p];                  
+);
+-- pre p nao pode ser nulo
+-- post len deadPieces = len deadPieces~ + 1
+-- post deadPieces = deadPieces~ ^ [p]
+
+public incScore: () ==> ()
+incScore () == (
+    score := score + 1;
+);                
+
+public resetScore: () ==> ()
+resetScore() == (
+    score := 0;
+);
 
 functions
 

@@ -20,17 +20,17 @@ instance variables
     -- 0: Flag, 1 to 10: check wikipedia, 11: mines
     private rank: nat;
     inv rank >= 0 and rank <= 11;
-    private position: [Coord];
+    
     private color: ColorPiece;
 
 operations
 
 -- constructor for Piece
-public Piece(rank_: nat) res: Piece == 
-(
-  rank := rank_;
-  position := nil;
-  return self
+public Piece: nat * ColorPiece ==> Piece
+Piece(rank_, color_) == (
+    rank := rank_;
+    color := color_;
+    return self
 );
 
 -- consult operations
@@ -39,16 +39,6 @@ getRank() == (return rank);
 
 public getColor: () ==> ColorPiece
 getColor() == (return color);
-
-public getPosition: () ==> Coord
-getPosition() == return position;
-
--- change operations
-public setPosition: Coord ==> ()
-setPosition(c) == 
-(
-  position := c;
-);
 
 functions
 
