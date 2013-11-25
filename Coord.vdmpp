@@ -19,8 +19,8 @@ instance variables
     public x : nat;
     public y : nat;
 
-    inv x >= 0 and x <= 9;
-    --inv y >= 0 and y <= 9; TODO perguntar à prof
+    inv x >= 1 and x <= 10;
+    --inv y >= 1 and y <= 10; TODO perguntar à prof
 
 operations
 
@@ -45,7 +45,7 @@ setPos(x_, y_) == (
   x := x_;
   y := y_;
 )
-pre x_ >= 0 and x_ <= 9 and y_ >= 0 and y_ <= 9
+pre x_ >= 1 and x_ <= 10 and y_ >= 1 and y_ <= 10
 post x = x_ and y = y_;
 
 functions

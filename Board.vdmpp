@@ -14,29 +14,127 @@ class Board
 types
 
 values
+    private boardSize = 10;
 
 instance variables
-    private board: seq of map nat to [Piece];
-    private numPiecesOnBoard: nat;
-    private lakes: set of Coord;
+    private board: seq of seq of [Piece];
+    private lakes: seq of Coord;
+    --inv len lakes = 8;
 operations
 
 -- constructor for Board
 public Board: () ==> Board
-Board() == ();
+Board() == (
+  initBoard();
+  initLakes();
+);
+
 
 -- consult operations
-public getPieces() res : set of Piece == is not yet specified;
+public getPieceAtPosition: Coord ==> [Piece]
+getPieceAtPosition(pos) == (
+    return board(pos.getY())(pos.getX());
+);                            
 
-public getNumPieces() res : nat == 
-    return numPiecesOnBoard
-    ext rd numPiecesOnBoard
-    post res = numPiecesOnBoard;
+public isPositionFree: Coord ==> bool
+isPositionFree(pos) == (
+    return board(pos.getY())(pos.getX()) = nil;
+);
+
+public isPositionLake: Coord ==> bool
+isPositionLake(pos) == (
+    return exists coord in set elems lakes & coord.getX() = pos.getX() and coord.getY() = pos.getY();
+);               
+
+public placePiecesP1: seq of Piece ==> seq of seq of [Piece]
+placePiecesP1(pieces) == (
+    placePieces(pieces, 7, 10);
+    return board;
+)
+pre len pieces = 40;
+--todas as pecas tem de ter a mesma cor
+
+public placePiecesP2: seq of Piece ==> seq of seq of [Piece]
+placePiecesP2(pieces) == (
+    placePieces(pieces, 1, 4);
+    return board;
+)
+pre len pieces = 40;
+--todas as pecas tem de ter a mesma cor
+
+private placePieces: seq of Piece * nat1 * nat1 ==> ()
+placePieces(pieces, initialY, finalY) == (
+    dcl counter: nat1;
+    counter := 1;
+    
+    for all i in set {initialY,...,finalY} do (
+        for all j in set {1,...,10} do (
+            board(i)(j) := pieces(counter);
+            counter := counter +1;
+        );
+    );
+);
+
+public makeMove: Coord * Coord ==> seq of seq of [Piece]
+makeMove(pos1, pos2) == (
+    dcl piece: Piece;
+    piece := removePiece(pos1);
+    board(pos2.getY())(pos2.getX()) := piece;
+    return board;
+);
+--pre tem que ter peca na primeira pos
+
+public removePiece: Coord ==> Piece
+removePiece(pos) == (
+    dcl piece: Piece;
+    piece := board(pos.getY())(pos.getX());
+    board(pos.getY())(pos.getX()) := nil;
+    return piece;
+);
+--pos nao pode ser uma casa vazia
+
+public getBoard: () ==> seq of seq of [Piece]
+getBoard() == (
+    return board;
+);
+-- pre ?
+-- post res tem que ser = board
+
+
 
 -- change operations
+
+public initBoard: () ==> ()
+initBoard() == (
+    dcl row: seq of [Piece];
+    board := [];
+    
+    for all i in set {1,...,10} do (
+        row := [];
+        for all j in set {1,...,10} do (
+            row := row ^ [nil];                              
+        );
+        board := board ^ [row];
+    );
+);
+
+public initLakes: () ==> ()
+initLakes() == (
+    lakes := [ 
+        new Coord(2,4),
+        new Coord(2,5),
+        new Coord(3,4),
+        new Coord(3,5),
+        new Coord(6,4),
+        new Coord(6,5),
+        new Coord(7,4),
+        new Coord(7,5)
+    ];             
+);
+ 
+
 public addPiece(p : Piece, x: nat, y: nat) == is not yet specified;
 public isFree(c : Coord) res : bool == is not yet specified;
-private initLakes() == is not yet specified;
 
 
 functions
