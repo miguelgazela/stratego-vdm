@@ -17,8 +17,9 @@ values
 
 instance variables
     public x : nat;
-    inv x >= 0 and x <= 9;
     public y : nat;
+
+    inv x >= 0 and x <= 9;
     inv y >= 0 and y <= 9;
 
 operations
@@ -29,7 +30,23 @@ Coord(x_, y_) == (
   x := x_;
   y := y_;
   return self
+);
+
+public getX: () ==> nat
+getX() ==
+  return x;
+
+public getY: () ==> nat
+getY() ==
+  return y;
+
+public setPos: nat * nat ==> ()
+setPos(x_, y_) == (
+  x := x_;
+  y := y_;
 )
+pre x_ >= 0 and x_ <= 9 and y_ >= 0 and y_ <= 9
+post x = x_ and y = y_;
 
 functions
 
