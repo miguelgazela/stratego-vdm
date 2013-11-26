@@ -21,8 +21,8 @@ values
     private P2_FINAL_Y = 4;
 
 instance variables
-    private board: seq of seq of [Piece];
-    private lakes: seq of Coord;
+    private board: seq of seq of [Piece] := [];
+    private lakes: seq of Coord := [];
     --inv len lakes = 8;
 operations
 
@@ -134,18 +134,18 @@ removePiece(pos) == (
     board(pos.getY())(pos.getX()) := nil;
     return piece;
 )
-pre getPieceAtPosition(pos) <> nil
-    and pos.getX() in set {1,...,BOARDSIZE}
-    and pos.getY() in set {1,...,BOARDSIZE}; 
---pos nao pode ser uma casa vazia
+pre pos.getX() in set {1,...,BOARDSIZE}
+    and pos.getY() in set {1,...,BOARDSIZE}
+    and getPieceAtPosition(pos) <> nil
+post getPieceAtPosition(pos) = nil;
+--TODO devia verificar que o numero de pecas diminuiu, cm?
 
 public getBoard: () ==> seq of seq of [Piece]
 getBoard() == (
     return board;
-);
+)
 -- pre ?
--- post res tem que ser = board
-
+post RESULT = board;
 
 
 -- change operations
@@ -153,7 +153,6 @@ getBoard() == (
 public initBoard: () ==> ()
 initBoard() == (
     dcl row: seq of [Piece];
-    board := [];
     
     for all i in set {1,...,10} do (
         row := [];
@@ -162,7 +161,12 @@ initBoard() == (
         );
         board := board ^ [row];
     );
-);
+)
+pre board = []
+post board <> [] and len board = BOARDSIZE
+    and not exists row in set elems board & 
+        len row <> BOARDSIZE and not exists pos in set elems row 
+            & pos <> nil;
 
 public initLakes: () ==> ()
 initLakes() == (
@@ -176,11 +180,21 @@ initLakes() == (
         new Coord(7,4),
         new Coord(7,5)
     ];             
-);
- 
+)
+pre lakes = []
+post lakes <> [] and len lakes = 8
+    and not exists coord in set elems lakes &
+        coord.getX() not in set {2,3,6,7} and coord.getY() not in set {4,5};
 
-public addPiece(p : Piece, x: nat, y: nat) == is not yet specified;
-public isFree(c : Coord) res : bool == is not yet specified;
+public addPiece: Piece * Coord ==> ()
+addPiece(piece, pos) == (
+    board(pos.getY())(pos.getX()) := piece;
+)
+pre pos.getX() in set {1,...,BOARDSIZE}
+    and pos.getY() in set {1,...,BOARDSIZE}
+    and isPositionFree(pos)
+post getPieceAtPosition(pos) = piece;
+-- e o numero de pecas aumentou em 1, cm?
 
 
 functions
