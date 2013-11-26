@@ -16,11 +16,12 @@ types
 values
 
 instance variables
-    public x : nat;
-    public y : nat;
-
+    private x : nat;
     inv x >= 1 and x <= 10;
-    --inv y >= 1 and y <= 10; TODO perguntar à prof
+
+    private y : nat;
+    --A inv a seguir nao funciona, porque?
+    --inv y >= 1 and y <= 10;
 
 operations
 
@@ -30,22 +31,28 @@ Coord(x_, y_) == (
   x := x_;
   y := y_;
   return self
-);
+)
+pre x_ in set {1,...,10} and y_ in set {1,...,10}
+post x = x_ and y = y_;
 
 public getX: () ==> nat
-getX() ==
+getX() == (
   return x;
+)
+post RESULT = x;
 
 public getY: () ==> nat
-getY() ==
+getY() == (
   return y;
+)
+post RESULT = y;
 
 public setPos: nat * nat ==> ()
 setPos(x_, y_) == (
   x := x_;
   y := y_;
 )
-pre x_ >= 1 and x_ <= 10 and y_ >= 1 and y_ <= 10
+pre x_ in set {1,...,10} and y_ in set {1,...,10}
 post x = x_ and y = y_;
 
 functions
