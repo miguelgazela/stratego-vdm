@@ -24,9 +24,11 @@ instance variables
 
     private pieces: seq of Piece := [];
     inv len pieces <= 40;
+    inv not exists p1,p2 in set elems pieces & p1 <> p2 and p1.getColor() <> p2.getColor(); 
 
     private deadPieces : seq of Piece := [];
     inv len deadPieces <= 40;
+    inv not exists p1,p2 in set elems deadPieces & p1 <> p2 and p1.getColor() <> p2.getColor(); 
 
     private color: Piece`ColorPiece;
     inv color in set {<Blue>, <Red>};
