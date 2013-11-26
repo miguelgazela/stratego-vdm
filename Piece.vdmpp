@@ -22,23 +22,34 @@ instance variables
     inv rank >= 0 and rank <= 11;
     
     private color: ColorPiece;
+    inv color in set {<Blue>, <Red>};
 
 operations
 
 -- constructor for Piece
 public Piece: nat * ColorPiece ==> Piece
 Piece(rank_, color_) == (
+    atomic (
     rank := rank_;
     color := color_;
+    );
     return self
-);
+)
+pre (rank_ in set {1,...,10} and color_ in set {<Blue>, <Red>})
+post (rank = rank_ and color = color_);
 
 -- consult operations
 public getRank: () ==> nat
-getRank() == (return rank);
+getRank() == (
+  return rank
+)
+post RESULT = rank;
 
 public getColor: () ==> ColorPiece
-getColor() == (return color);
+getColor() == (
+  return color
+)
+post RESULT = color;
 
 functions
 
