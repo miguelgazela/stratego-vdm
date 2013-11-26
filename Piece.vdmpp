@@ -35,7 +35,7 @@ Piece(rank_, color_) == (
     );
     return self
 )
-pre (rank_ in set {1,...,10} and color_ in set {<Blue>, <Red>})
+pre (rank_ in set {0,...,11} and color_ in set {<Blue>, <Red>})
 post (rank = rank_ and color = color_);
 
 -- consult operations
