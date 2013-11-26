@@ -14,7 +14,11 @@ class Board
 types
 
 values
-    private boardSize = 10;
+    private BOARDSIZE = 10;
+    private P1_INITIAL_Y = 7;
+    private P1_FINAL_Y = 10;
+    private P2_INITIAL_Y = 1;
+    private P2_FINAL_Y = 4;
 
 instance variables
     private board: seq of seq of [Piece];
@@ -34,31 +38,46 @@ Board() == (
 public getPieceAtPosition: Coord ==> [Piece]
 getPieceAtPosition(pos) == (
     return board(pos.getY())(pos.getX());
-);                            
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = board(pos.getY())(pos.getX());                         
 
 public isPositionFree: Coord ==> bool
 isPositionFree(pos) == (
-    return board(pos.getY())(pos.getX()) = nil;
-);
+    return board(pos.getY())(pos.getX()) = nil 
+    and 
+    not isPositionLake(pos);
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = (board(pos.getY())(pos.getX()) = nil) or RESULT = not isPositionLake(pos);
 
 public isPositionLake: Coord ==> bool
 isPositionLake(pos) == (
-    return exists coord in set elems lakes & coord.getX() = pos.getX() and coord.getY() = pos.getY();
-);               
+    return exists coord in set elems lakes & Coord`areEqual(pos, coord);
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = exists coord in set elems lakes & coord.getX() = pos.getX() and coord.getY() = pos.getY();      
 
 public placePiecesP1: seq of Piece ==> ()
 placePiecesP1(pieces) == (
-    placePieces(pieces, 7, 10);
+    placePieces(pieces, P1_INITIAL_Y, P1_FINAL_Y);
 )
-pre len pieces = 40;
---todas as pecas tem de ter a mesma cor
+--as pecas tem de ter a mesma cor
+--se ja existem pecas colocadas na board, nao pode ser da mesma cor
+pre len pieces = 40 and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor();
+
 
 public placePiecesP2: seq of Piece ==> ()
 placePiecesP2(pieces) == (
-    placePieces(pieces, 1, 4);
+    placePieces(pieces, P2_INITIAL_Y, P2_FINAL_Y);
 )
-pre len pieces = 40;
+pre len pieces = 40 
+    and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor();
+    --and (for all row in set elems board do (
+    --not exists piece in set elems row & piece <> nil and piece.getColor() = pieces(1).getColor();
+    --);
 --todas as pecas tem de ter a mesma cor
+--se ja existem pecas colocadas na board, nao pode ser da mesma cor
 
 private placePieces: seq of Piece * nat1 * nat1 ==> ()
 placePieces(pieces, initialY, finalY) == (
@@ -71,6 +90,19 @@ placePieces(pieces, initialY, finalY) == (
             counter := counter +1;
         );
     );
+);
+
+public getNumberPiecesOnBoard: () ==> nat
+getNumberPiecesOnBoard() == (
+    dcl counter: nat;
+    counter := 0;
+    for all row in set elems board do (
+        for all pos in set elems row do (
+            if pos <> nil
+            then counter := counter + 1;
+        );
+    );
+    return counter;
 );
 
 public makeMove: Coord * Coord ==> seq of seq of [Piece]

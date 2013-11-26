@@ -56,6 +56,12 @@ setPos(x_, y_) == (
 pre x_ in set {1,...,10} and y_ in set {1,...,10}
 post x = x_ and y = y_;
 
+public static areEqual: Coord * Coord ==> bool
+areEqual(pos1, pos2) == (
+  return pos1.getX() = pos2.getX() and pos1.getY() = pos2.getY();
+);
+
 functions
+
 
 end Coord
