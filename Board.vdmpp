@@ -35,12 +35,15 @@ Board() == (
 
 
 -- consult operations
+
+
 public getPieceAtPosition: Coord ==> [Piece]
 getPieceAtPosition(pos) == (
     return board(pos.getY())(pos.getX());
 )
 pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
 post RESULT = board(pos.getY())(pos.getX());                         
+
 
 public isPositionFree: Coord ==> bool
 isPositionFree(pos) == (
@@ -51,6 +54,7 @@ isPositionFree(pos) == (
 pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
 post RESULT = (board(pos.getY())(pos.getX()) = nil) or RESULT = not isPositionLake(pos);
 
+
 public isPositionLake: Coord ==> bool
 isPositionLake(pos) == (
     return exists coord in set elems lakes & Coord`areEqual(pos, coord);
@@ -58,6 +62,7 @@ isPositionLake(pos) == (
 pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
 post RESULT = exists coord in set elems lakes & coord.getX() = pos.getX()
     and coord.getY() = pos.getY();      
+
 
 public placePiecesP1: seq of Piece ==> ()
 placePiecesP1(pieces) == (
@@ -68,7 +73,7 @@ placePiecesP1(pieces) == (
 pre len pieces = 40
     and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor()
     and not exists piece in set elems pieces & board(P2_INITIAL_Y)(1) <> nil and piece.getColor() = board(P2_INITIAL_Y)(1).getColor(); --nao podem ser da cor do outro jogador
--- TODO falta verificar que as pecas ficaram todas no sitio certo
+
 
 public placePiecesP2: seq of Piece ==> ()
 placePiecesP2(pieces) == (
@@ -77,7 +82,7 @@ placePiecesP2(pieces) == (
 pre len pieces = 40 
     and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor()
     and not exists piece in set elems pieces & board(P2_INITIAL_Y)(1) <> nil and piece.getColor() = board(P1_INITIAL_Y)(1).getColor(); --nao podem ser da cor do outro jogador
--- TODO faltar verificar que as pecas ficaram todas no sitio certo
+
 
 private placePieces: seq of Piece * nat1 * nat1 ==> ()
 placePieces(pieces, initialY, finalY) == (
@@ -94,6 +99,7 @@ placePieces(pieces, initialY, finalY) == (
 pre len pieces = 40 and initialY in set {1,7} and finalY in set {4,10}
     and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor();
 
+
 public getNumberPiecesOnBoard: () ==> nat
 getNumberPiecesOnBoard() == (
     dcl counter: nat;
@@ -109,12 +115,12 @@ getNumberPiecesOnBoard() == (
 post RESULT >= 0 and RESULT <= 80;
 -- TODO aqui devia ver se o RESULT e mesmo igual a uma contagem das pecas?
 
-public movePiece: Coord * Coord ==> seq of seq of [Piece]
+
+public movePiece: Coord * Coord ==> ()
 movePiece(pos1, pos2) == (
     dcl piece: Piece;
     piece := removePiece(pos1);
     board(pos2.getY())(pos2.getX()) := piece;
-    return board;
 ) 
 pre not Coord`areEqual(pos1, pos2)
     and pos1.getX() in set {1,...,BOARDSIZE}
@@ -124,8 +130,8 @@ pre not Coord`areEqual(pos1, pos2)
     and getPieceAtPosition(pos1) <> nil --tem que ter peca na posicao inicial
     and isPositionFree(pos2)
 post getPieceAtPosition(pos1) = nil
-    and getPieceAtPosition(pos2) <> nil
-    and RESULT = board;
+    and getPieceAtPosition(pos2) <> nil;
+
 
 public removePiece: Coord ==> Piece
 removePiece(pos) == (
@@ -140,15 +146,16 @@ pre pos.getX() in set {1,...,BOARDSIZE}
 post getPieceAtPosition(pos) = nil;
 --TODO devia verificar que o numero de pecas diminuiu, cm?
 
+
 public getBoard: () ==> seq of seq of [Piece]
 getBoard() == (
     return board;
 )
--- pre ?
 post RESULT = board;
 
 
 -- change operations
+
 
 public initBoard: () ==> ()
 initBoard() == (
@@ -168,6 +175,7 @@ post board <> [] and len board = BOARDSIZE
         len row <> BOARDSIZE and not exists pos in set elems row 
             & pos <> nil;
 
+
 public initLakes: () ==> ()
 initLakes() == (
     lakes := [ 
@@ -185,6 +193,7 @@ pre lakes = []
 post lakes <> [] and len lakes = 8
     and not exists coord in set elems lakes &
         coord.getX() not in set {2,3,6,7} and coord.getY() not in set {4,5};
+
 
 public addPiece: Piece * Coord ==> ()
 addPiece(piece, pos) == (

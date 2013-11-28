@@ -21,8 +21,8 @@ values
     private SCOUT: nat = 2;
 
 instance variables
-    private defaultPieces: seq of PieceConf;
-    inv len defaultPieces = 12;
+    private defaultPieces: seq of PieceConf := [];
+    --inv len defaultPieces = 12;
 
     private playerOne: Player;
     private playerTwo: Player;
@@ -33,21 +33,20 @@ instance variables
     -- inv este plauer tem que ser o plauerone ou o player2
 operations
 
+
 -- constructor for Stratego
 public Stratego() res: Stratego == (
-    atomic (
-        board := new Board();
-        playerOne := new Player("P1", <Blue>);
-        playerTwo := new Player("P2", <Red>);
-        currentPlayer := playerOne;
-        initPieceConfigurations();
-        initGame();
-    );
+    board := new Board();
+    playerOne := new Player("P1", <Blue>);
+    playerTwo := new Player("P2", <Red>);
+    currentPlayer := playerOne;
+    initGame();
     return self;
 );
 
 -- consult operations
     
+
 private initPieceConfigurations: () ==> ()
 initPieceConfigurations() == (
     defaultPieces := [
@@ -58,42 +57,93 @@ initPieceConfigurations() == (
         mk_PieceConf("COLONEL",8,2), mk_PieceConf("GENERAL",9,1),
         mk_PieceConf("MARSHAL",10,1), mk_PieceConf("BOMB",11,6)
     ];
-);
+)
+pre defaultPieces = []
+post len defaultPieces = 12
+    and not exists pieceConf1, pieceConf2 in set elems defaultPieces & 
+        pieceConf1 <> pieceConf2
+        and pieceConf1.name = pieceConf2.name
+        and pieceConf1.rank = pieceConf2.rank
+        and not {pieceConf1.name, pieceConf2.name} subset {"FLAG", "SPY", "SCOUT", "MINER", "SERGEANT", "LIUTENANT", "CAPTAIN", "MAJOR", "COLONEL", "GENERAL", "MARSHAL", "BOMB"}
+        and not {pieceConf1.quantity, pieceConf2.quantity} subset {1,8,5,4,3,2,6};
+
 
 public initGame: () ==> ()
 initGame() == (
+    initPieceConfigurations();
     givePiecesP1();
     givePiecesP2();
-    placeInitialPieces();
-);
+)
+pre defaultPieces = []
+    and playerOne.getPieces() = [] 
+    and playerTwo.getPieces() = []
+post defaultPieces <> []
+    and len playerOne.getPieces() = 40
+    and len playerTwo.getPieces() = 40;
   
+
 public givePiecesP1: () ==> ()
 givePiecesP1() == (
-    buildPieces(<Blue>, playerOne);
-);
+    givePieces(<Blue>, playerOne);
+)
+pre playerOne.getPieces() = []
+post len playerOne.getPieces() = 40
+    and not exists piece in set elems playerOne.getPieces() & piece.getColor() <> <Blue>;
+
 
 public givePiecesP2: () ==> ()
 givePiecesP2() == (
-    buildPieces(<Red>, playerTwo);
-);
+    givePieces(<Red>, playerTwo);
+)
+pre playerTwo.getPieces() = []
+post len playerTwo.getPieces() = 40
+    and not exists piece in set elems playerTwo.getPieces() & piece.getColor() <> <Red>;
 
-private buildPieces: Piece`ColorPiece * Player ==> ()
-buildPieces(color, player) == (
+
+private givePieces: Piece`ColorPiece * Player ==> ()
+givePieces(color, player) == (
     for all pieceConf in set elems defaultPieces do (
         for all i in set {1,...,pieceConf.quantity} do (
             player.addPiece(new Piece(pieceConf.rank, color, pieceConf.name));
         );
     );
-);
---pre color tem que ser <Blue> ou <Red>
---post ver que o jogador tem 40 pecas depois disto
+)
+pre color in set {<Blue>, <Red>}
+    and player = playerOne or player = playerTwo
+post not exists pieceConf in set elems defaultPieces & pieceConf.quantity <> countPiecesWithRank(player.getPieces(), pieceConf.rank);
+
+
+private countPiecesWithRank: seq of Piece * nat ==> nat
+countPiecesWithRank(pieces, rank) == (
+    dcl counter: nat;
+    counter := 0;
+
+    for all piece in set elems pieces do (
+        if piece.getRank() = rank
+        then counter := counter + 1;
+    );
+    return counter;
+)
+pre rank in set {0,...,12}
+    and len pieces <> 0
+post RESULT in set {1,8,5,4,3,2,6};
     
+
 public placeInitialPieces: () ==> ()
 placeInitialPieces() == (
     board.placePiecesP1(playerOne.getPieces());
+    playerOne.removePieces();
+
     board.placePiecesP2(playerTwo.getPieces()); 
-);
-    
+    playerTwo.removePieces();
+)
+pre board.getNumberPiecesOnBoard() = 0
+    and playerOne.getPieces() <> []
+    and playerTwo.getPieces() <> []
+post board.getNumberPiecesOnBoard() = 80
+    and playerOne.getPieces() = []
+    and playerTwo.getPieces() = [];
+
     
 public getPlayerOne: () ==> Player
 getPlayerOne() == (
@@ -101,12 +151,14 @@ getPlayerOne() == (
 )
 post RESULT = playerOne;
     
+
 public getPlayerTwo: () ==> Player
 getPlayerTwo() == (
     return playerTwo;    
 )
 post RESULT = playerTwo;
  
+
 public getCurrentPlayer: () ==> Player
 getCurrentPlayer() == (
     return currentPlayer;    
@@ -114,74 +166,118 @@ getCurrentPlayer() == (
 post RESULT = currentPlayer 
     and (currentPlayer = playerOne or currentPlayer = playerTwo);
 
+
 public getBoard: () ==> Board
 getBoard() == (
     return board;
 )
 post RESULT = board;
 
-public makeMove: Coord * Coord ==> bool
+
+public makeMove: Coord * Coord ==> nat
 makeMove(srcPos, destPos) == (
     dcl srcPiece: Piece;
     dcl destPiece: Piece;
+    dcl result: nat;
     
     if board.isPositionFree(srcPos) or board.isPositionLake(srcPos)
-    then return false;
+    then return 1;
     
     srcPiece := board.getPieceAtPosition(srcPos);
     
     if srcPiece.getColor() <> currentPlayer.getColor()
-    then return false
+    then return 2
     elseif board.isPositionLake(destPos)
-    then return false;
+    then return 3;
     
     if board.isPositionFree(destPos)
-    then return checkMoveIsValid(srcPos, destPos, srcPiece);
-    
+    then (
+        result := moveIsValid(srcPos, destPos, srcPiece);
+
+        if result = 0
+        then (
+            -- make the move
+            board.movePiece(srcPos, destPos);
+            return 0;
+        )
+        else return result;
+    );
+
     destPiece := board.getPieceAtPosition(destPos);
     
     if destPiece.getColor() = currentPlayer.getColor()
-    then return false
-    else return true; -- TODO temporary
+    then return 6
+    else return 0; -- TODO temporary
     
     --makeBattle(srcPiece, destPiece);
-    --return true;
+    --return 0;
 );
 
-public checkMoveIsValid: Coord * Coord * Piece ==> bool
-checkMoveIsValid(srcPos, destPos, srcPiece) == (
-    if srcPos.getX() <> destPos.getX() and srcPos.getY() <> destPos.getY()
-    then return false;
+
+public moveIsValid: Coord * Coord * Piece ==> nat
+moveIsValid(srcPos, destPos, srcPiece) == (
+
+    -- movimentos na diagonal nao sao validos
+    if (srcPos.getX() <> destPos.getX() and srcPos.getY() <> destPos.getY())
+    then return 11;
     
+    -- pecas imoveis nao se podem mover
+    if srcPiece.getName() in set {"FLAG", "BOMB"}
+    then return 12
+    elseif srcPiece.getName() = "SCOUT"
+    then (
+        return 0; -- TODO temporary
+    )
+    else (
+        if abs (destPos.getX() - srcPos.getX()) = 1 or abs (destPos.getY() - srcPos.getY()) = 1
+        then return 0
+        else return 13;
+    );
+
     -- check middle positions
-    if not middlePositionsAreFree(srcPos, destPos)
-    then return false
-    else return true; -- TODO temporary
+    if middlePositionsAreFree(srcPos, destPos)
+    then return 0
+    else return 14;
 );
     
+
 public middlePositionsAreFree: Coord * Coord ==> bool
 middlePositionsAreFree(srcPos, destPos) == (
+    dcl positions: seq of Coord;
+
     if srcPos.getY() > destPos.getY() --norte
     then (
-        return false;
+        positions := [new Coord(srcPos.getX(), y) | y in set {destPos.getY()+1,...,srcPos.getY()-1}];
     )
     elseif srcPos.getY() < destPos.getY() --sul
     then (
-        return false;
+        positions := [new Coord(srcPos.getX(), y) | y in set {srcPos.getY()+1,...,destPos.getY()-1}];
     )
     elseif srcPos.getX() > destPos.getX() --oeste
     then (
-        return false;
+        positions := [new Coord(x, srcPos.getY()) | x in set {destPos.getX()+1,...,srcPos.getX()-1}];
     )
     elseif srcPos.getX() < destPos.getX() --este
     then (
-        return false;  
-    )
-    else return true; -- TODO temporary
+        positions := [new Coord(x, srcPos.getY()) | x in set {srcPos.getX()+1,...,destPos.getX()-1}];
+    );
+
+    for all position in set elems positions do (
+        if not board.isPositionFree(position)
+        then return false;
+    );
+    return true;
 );
 
+
 -- change operations
-public updateTurn() == is not yet specified;
+public updateTurn: () ==> ()
+updateTurn() == (
+    if currentPlayer = playerOne
+    then currentPlayer := playerTwo
+    else currentPlayer := playerOne;
+);
+
 public isGameOver() == is not yet specified;
 
 

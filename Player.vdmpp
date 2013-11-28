@@ -94,6 +94,13 @@ setPieces(pieces_) == (
 pre pieces = [] and len pieces_ = 40 and not exists piece in set elems pieces_ & piece.getColor() <> color
 post pieces <> [] and len pieces = 40 and pieces = pieces_;
 
+public removePieces: () ==> ()
+removePieces() == (
+  pieces := [];
+)
+pre pieces <> []
+post pieces = [];
+
 public removeAllPieces: () ==> ()
 removeAllPieces() == (
   pieces := [];
