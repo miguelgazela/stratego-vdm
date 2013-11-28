@@ -119,7 +119,8 @@ post RESULT >= 0 and RESULT <= 80;
 public movePiece: Coord * Coord ==> ()
 movePiece(pos1, pos2) == (
     dcl piece: Piece;
-    piece := removePiece(pos1);
+    piece := getPieceAtPosition(pos1);
+    removePiece(pos1);
     board(pos2.getY())(pos2.getX()) := piece;
 ) 
 pre not Coord`areEqual(pos1, pos2)
@@ -133,12 +134,11 @@ post getPieceAtPosition(pos1) = nil
     and getPieceAtPosition(pos2) <> nil;
 
 
-public removePiece: Coord ==> Piece
+public removePiece: Coord ==> ()
 removePiece(pos) == (
     dcl piece: Piece;
     piece := board(pos.getY())(pos.getX());
     board(pos.getY())(pos.getX()) := nil;
-    return piece;
 )
 pre pos.getX() in set {1,...,BOARDSIZE}
     and pos.getY() in set {1,...,BOARDSIZE}
@@ -179,20 +179,20 @@ post board <> [] and len board = BOARDSIZE
 public initLakes: () ==> ()
 initLakes() == (
     lakes := [ 
-        new Coord(2,4),
-        new Coord(2,5),
-        new Coord(3,4),
         new Coord(3,5),
-        new Coord(6,4),
-        new Coord(6,5),
-        new Coord(7,4),
-        new Coord(7,5)
+        new Coord(3,6),
+        new Coord(4,5),
+        new Coord(4,6),
+        new Coord(7,5),
+        new Coord(7,6),
+        new Coord(8,5),
+        new Coord(8,6)
     ];             
 )
 pre lakes = []
 post lakes <> [] and len lakes = 8
     and not exists coord in set elems lakes &
-        coord.getX() not in set {2,3,6,7} and coord.getY() not in set {4,5};
+        coord.getX() not in set {3,4,7,8} and coord.getY() not in set {5,6};
 
 
 public addPiece: Piece * Coord ==> ()

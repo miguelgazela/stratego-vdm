@@ -205,12 +205,64 @@ makeMove(srcPos, destPos) == (
 
     destPiece := board.getPieceAtPosition(destPos);
     
+    -- nao pode ir para uma posicao ocupada por uma peca dele
     if destPiece.getColor() = currentPlayer.getColor()
-    then return 6
-    else return 0; -- TODO temporary
+    then return 6;
+
+    -- moveu para cima de uma peca inimiga, inicia combate  
+    makeBattle(srcPos, destPos, srcPiece, destPiece);
+    return 0;
+);
+
+private makeBattle: Coord * Coord * Piece * Piece ==> ()
+makeBattle(srcPos, destPos, srcPiece, destPiece) == (
+    -- MINER nao morre com as bombas
+    -- SPY consegue matar o MARSHAL
+    -- BOMB destroi qualquer peca menos o MINER
+    -- FLAG morre com todos e acaba o jogo
     
-    --makeBattle(srcPiece, destPiece);
-    --return 0;
+    if srcPiece.getName() = "MINER" and destPiece.getName() = "BOMB"
+        or
+        srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL"
+    then (
+        makeBattleAux(srcPos, destPos, destPiece);
+    )
+    else (
+        if srcPiece.getRank() = destPiece.getRank()
+        then (
+            board.removePiece(srcPos);
+            board.removePiece(destPos);
+            currentPlayer.addDeadPiece(srcPiece);
+            addDeadPieceToEnemy(destPiece);
+        )
+        elseif srcPiece.getRank() > destPiece.getRank()
+        then (
+            makeBattleAux(srcPos, destPos, destPiece);
+        )
+        else (
+            board.removePiece(srcPos);
+            currentPlayer.addDeadPiece(srcPiece);
+        );
+    
+        --if destPiece.getName() = "FLAG"
+        --then gameOver(); --TODO gameOver function
+    )
+);
+
+
+private makeBattleAux: Coord * Coord * Piece ==> ()
+makeBattleAux(srcPos, destPos, destPiece) == (
+    board.removePiece(destPos);
+    board.movePiece(srcPos, destPos);
+    addDeadPieceToEnemy(destPiece);
+);
+
+
+private addDeadPieceToEnemy: Piece ==> ()
+addDeadPieceToEnemy(piece) == (
+    if currentPlayer = playerOne
+    then playerTwo.addDeadPiece(piece)
+    else playerOne.addDeadPiece(piece);                               
 );
 
 
@@ -226,18 +278,16 @@ moveIsValid(srcPos, destPos, srcPiece) == (
     then return 12
     elseif srcPiece.getName() = "SCOUT"
     then (
-        return 0; -- TODO temporary
+        -- check middle positions
+        if middlePositionsAreFree(srcPos, destPos)
+        then return 0
+        else return 14;
     )
     else (
         if abs (destPos.getX() - srcPos.getX()) = 1 or abs (destPos.getY() - srcPos.getY()) = 1
         then return 0
         else return 13;
     );
-
-    -- check middle positions
-    if middlePositionsAreFree(srcPos, destPos)
-    then return 0
-    else return 14;
 );
     
 
