@@ -13,6 +13,7 @@ class Piece
 
 types
   public ColorPiece = <Blue> | <Red>;
+  public String = seq of char;
 
 values
 
@@ -21,17 +22,21 @@ instance variables
     private rank: nat;
     inv rank >= 0 and rank <= 11;
     
+    private name: String;
+    inv len name > 0;
+
     private color: ColorPiece;
     inv color in set {<Blue>, <Red>};
 
 operations
 
 -- constructor for Piece
-public Piece: nat * ColorPiece ==> Piece
-Piece(rank_, color_) == (
+public Piece: nat * ColorPiece * String ==> Piece
+Piece(rank_, color_, name_) == (
     atomic (
     rank := rank_;
     color := color_;
+    name := name_;
     );
     return self
 )
@@ -50,6 +55,12 @@ getColor() == (
   return color
 )
 post RESULT = color;
+
+public getName: () ==> String
+getName() == (
+  return name
+)
+post RESULT = name and len RESULT > 0;
 
 functions
 

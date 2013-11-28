@@ -12,51 +12,52 @@
 class Stratego
 
 types
+    public String = seq of char;
+    public PieceConf :: name: String
+                        rank: nat
+                        quantity: real;   
 
 values
-    --private FLAG: map nat to nat1 = {0 |-> 1};
-    --private SPY: map nat to nat1 = {1 |-> 1};
-    --private SCOUT: map nat to nat1 = {2 |-> 8};
-    --private MINER: map nat to nat1 = {3 |-> 5};
-    --private SERGEANT: map nat to nat1 = {4 |-> 4};
-    --private LIUETENANT: map nat to nat1 = {5 |-> 4};
-    --private CAPTAIN: map nat to nat1 = {6 |-> 4};
-    --private MAJOR: map nat to nat1 = {7 |-> 3};
-    --private COLONEL: map nat to nat1 = {8 |-> 2};
-    --private GENERAL: map nat to nat1 = {9 |-> 1};
-    --private MARSHAL: map nat to nat1 = {10 |-> 1};
-    --private BOMB: map nat to nat1 = {11 |-> 6};
     private SCOUT: nat = 2;
 
 instance variables
-    private pieceQuantities: seq of seq of real;
+    private defaultPieces: seq of PieceConf;
+    inv len defaultPieces = 12;
+
     private playerOne: Player;
     private playerTwo: Player;
     private board: Board;
     private currentPlayer: Player;
+    --inv currentPlayer = playerOne or currentPlayer = playerTwo;
+
     -- inv este plauer tem que ser o plauerone ou o player2
 operations
 
 -- constructor for Stratego
 public Stratego() res: Stratego == (
-    board := new Board();
-    playerOne := new Player("P1", <Blue>);
-    playerTwo := new Player("P2", <Red>);
-    currentPlayer := playerOne;
-    initPieceQuantities();
-    initGame();
+    atomic (
+        board := new Board();
+        playerOne := new Player("P1", <Blue>);
+        playerTwo := new Player("P2", <Red>);
+        currentPlayer := playerOne;
+        initPieceConfigurations();
+        initGame();
+    );
     return self;
 );
 
 -- consult operations
     
-private initPieceQuantities: () ==> ()
-initPieceQuantities() == (
-    pieceQuantities := [
-        [0,1], [1,1], [2,8], [3,5],
-        [4,4], [5,4], [6,4], [7,3],
-        [8,2], [9,1], [10,1], [11,6]
-    ]
+private initPieceConfigurations: () ==> ()
+initPieceConfigurations() == (
+    defaultPieces := [
+        mk_PieceConf("FLAG",0,1), mk_PieceConf("SPY",1,1),
+        mk_PieceConf("SCOUT",2,8), mk_PieceConf("MINER",3,5),
+        mk_PieceConf("SERGEANT",4,4), mk_PieceConf("LIUTENANT",5,4),
+        mk_PieceConf("CAPTAIN",6,4), mk_PieceConf("MAJOR",7,3),
+        mk_PieceConf("COLONEL",8,2), mk_PieceConf("GENERAL",9,1),
+        mk_PieceConf("MARSHAL",10,1), mk_PieceConf("BOMB",11,6)
+    ];
 );
 
 public initGame: () ==> ()
@@ -78,9 +79,9 @@ givePiecesP2() == (
 
 private buildPieces: Piece`ColorPiece * Player ==> ()
 buildPieces(color, player) == (
-    for all pieceConf in set elems pieceQuantities do (
-        for all i in set {1,...,pieceConf(2)} do (
-            player.addPiece(new Piece(pieceConf(1), color));
+    for all pieceConf in set elems defaultPieces do (
+        for all i in set {1,...,pieceConf.quantity} do (
+            player.addPiece(new Piece(pieceConf.rank, color, pieceConf.name));
         );
     );
 );
@@ -97,22 +98,27 @@ placeInitialPieces() == (
 public getPlayerOne: () ==> Player
 getPlayerOne() == (
     return playerOne;    
-);
+)
+post RESULT = playerOne;
     
 public getPlayerTwo: () ==> Player
 getPlayerTwo() == (
     return playerTwo;    
-);
+)
+post RESULT = playerTwo;
  
 public getCurrentPlayer: () ==> Player
 getCurrentPlayer() == (
     return currentPlayer;    
-);
+)
+post RESULT = currentPlayer 
+    and (currentPlayer = playerOne or currentPlayer = playerTwo);
 
 public getBoard: () ==> Board
 getBoard() == (
     return board;
-);
+)
+post RESULT = board;
 
 public makeMove: Coord * Coord ==> bool
 makeMove(srcPos, destPos) == (
