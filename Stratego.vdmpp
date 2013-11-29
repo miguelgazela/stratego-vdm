@@ -216,6 +216,8 @@ makeMove(srcPos, destPos) == (
     )
     else return result;
 );
+--post RESULT in set {0,...,6}
+--PORQUE que retorna 0,1,2,3,6???
 
 private makeBattle: Coord * Coord * Piece * Piece ==> ()
 makeBattle(srcPos, destPos, srcPiece, destPiece) == (
@@ -298,6 +300,7 @@ moveIsValid(srcPos, destPos, srcPiece) == (
         else return 13;
     );
 );
+--post RESULT in set {11,...,14}
     
 
 public middlePositionsAreFree: Coord * Coord ==> bool
