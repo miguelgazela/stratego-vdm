@@ -25,6 +25,8 @@ instance variables
     private name: String;
     inv len name > 0;
 
+    private hidden: bool;
+
     private color: ColorPiece;
     inv color in set {<Blue>, <Red>};
 
@@ -37,6 +39,7 @@ Piece(rank_, color_, name_) == (
     rank := rank_;
     color := color_;
     name := name_;
+    hidden := true;
     );
     return self
 )
@@ -61,6 +64,12 @@ getName() == (
   return name
 )
 post RESULT = name and len RESULT > 0;
+
+public isHidden: () ==> bool
+isHidden() == (
+  return hidden;
+)
+post RESULT = hidden;
 
 functions
 

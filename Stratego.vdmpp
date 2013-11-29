@@ -28,6 +28,7 @@ instance variables
     private playerTwo: Player;
     private board: Board;
     private currentPlayer: Player;
+    private gameIsOver: bool;
     --inv currentPlayer = playerOne or currentPlayer = playerTwo;
 
     -- inv este plauer tem que ser o plauerone ou o player2
@@ -40,6 +41,7 @@ public Stratego() res: Stratego == (
     playerOne := new Player("P1", <Blue>);
     playerTwo := new Player("P2", <Red>);
     currentPlayer := playerOne;
+    gameIsOver := false;
     initGame();
     return self;
 );
@@ -133,7 +135,6 @@ public placeInitialPieces: () ==> ()
 placeInitialPieces() == (
     board.placePiecesP1(playerOne.getPieces());
     playerOne.removePieces();
-
     board.placePiecesP2(playerTwo.getPieces()); 
     playerTwo.removePieces();
 )
@@ -244,8 +245,8 @@ makeBattle(srcPos, destPos, srcPiece, destPiece) == (
             currentPlayer.addDeadPiece(srcPiece);
         );
     
-        --if destPiece.getName() = "FLAG"
-        --then gameOver(); --TODO gameOver function
+        if destPiece.getName() = "FLAG"
+        then gameOver();
     )
 );
 
@@ -320,7 +321,6 @@ middlePositionsAreFree(srcPos, destPos) == (
 );
 
 
--- change operations
 public updateTurn: () ==> ()
 updateTurn() == (
     if currentPlayer = playerOne
@@ -328,8 +328,20 @@ updateTurn() == (
     else currentPlayer := playerOne;
 );
 
-public isGameOver() == is not yet specified;
 
+public gameOver: () ==> ()
+gameOver() == (
+    gameIsOver := true;
+)
+pre gameIsOver = false
+post gameIsOver = true;
+
+
+public isGameOver: () ==> bool
+isGameOver() == (
+    return gameIsOver;
+)
+post RESULT = gameIsOver;
 
 
 functions
