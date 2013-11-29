@@ -30,11 +30,10 @@ public class UIResourcesLoader {
 	
 	public UICoord[] new_game_btns_coords;
 	public UICoord[][] board_positions_coords;
-	private UICoord[] youStrCoords;
 	
 	public UICoord turn_coord;
-	public UICoord game_phase_coord;
 	public UICoord game_status_coord;
+	public UICoord nextPiece_coord;
 	
 	private GameImage[] v_unselectedNewGameBtn;
 	private GameImage[] v_selectedNewGameBtn;
@@ -46,17 +45,16 @@ public class UIResourcesLoader {
 	private Image[] v_hiddenPieces;
 	
 	private GameImage[] v_turns;
-	private Image[] v_gamePhases;
 	private Image[] v_gameStatus;
 	
-	public GameImage startGameBtn, returnToGameBtn, youStr;
+	public GameImage startGameBtn, returnToGameBtn;
 	public GameImage confirmReset;
 	
 	private UIResourcesLoader() {
 		initPieces();
 		initImages();
 		initBtns();
-		//initStrings();
+		initStrings();
 		initCoords();
 		
 		// initialize backgrounds
@@ -82,26 +80,15 @@ public class UIResourcesLoader {
 	
 	private void initStrings() {
 		try {
-			youStr = new GameImage("images/strings/you.png");
-			
-			v_gamePhases = new Image[3];
-			v_gamePhases[0] = ImageIO.read(new File("images/strings/placing.png"));
-			v_gamePhases[1] = ImageIO.read(new File("images/strings/moving.png"));
-			v_gamePhases[2] = ImageIO.read(new File("images/strings/flying.png"));
-			
 			v_gameStatus = new Image[9];
 			v_gameStatus[0] = ImageIO.read(new File("images/strings/placePiece.png"));
 			v_gameStatus[1] = ImageIO.read(new File("images/strings/selectPiece.png"));
 			v_gameStatus[2] = ImageIO.read(new File("images/strings/movePiece.png"));
-			v_gameStatus[3] = ImageIO.read(new File("images/strings/removePiece.png"));
-			v_gameStatus[4] = ImageIO.read(new File("images/strings/flyPiece.png"));
-			v_gameStatus[5] = ImageIO.read(new File("images/strings/waitingAI.png"));
-			v_gameStatus[6] = ImageIO.read(new File("images/strings/p1Won.png"));
-			v_gameStatus[7] = ImageIO.read(new File("images/strings/p2Won.png"));
-			v_gameStatus[8] = ImageIO.read(new File("images/strings/draw.png"));
+			v_gameStatus[3] = ImageIO.read(new File("images/strings/p1Won.png"));
+			v_gameStatus[4] = ImageIO.read(new File("images/strings/p2Won.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Background Resources Missing");
+			System.out.println("Strings Resources Missing");
 			System.exit(-1);
 		}
 	}
@@ -131,6 +118,8 @@ public class UIResourcesLoader {
 		new_game_btns_coords[RANDOM_GAME] = new UICoord(105, 260);
 		new_game_btns_coords[STRATEGIC_GAME] = new UICoord(105, 375);
 		
+		nextPiece_coord = new UICoord(875, 660);
+		
 		board_positions_coords = new UICoord[10][10];
 		int x = 379;
 		int y = 56;
@@ -140,12 +129,6 @@ public class UIResourcesLoader {
 				board_positions_coords[i][j] = new UICoord(x+j*54, y+i*54);
 			}
 		}
-		
-		youStrCoords = new UICoord[2];
-		youStrCoords[0] = new UICoord(210, 312);
-		youStrCoords[1] = new UICoord(1011, 312);
-		
-		game_phase_coord = new UICoord(545, 11);
 		game_status_coord = new UICoord(363, 668);
 	}
 	
@@ -173,55 +156,23 @@ public class UIResourcesLoader {
 		}
 	}
 	
-//	public Image getGameStatus(String str) {
-//		switch (str) {
-//		case "place":
-//			return v_gameStatus[0];
-//		case "select":
-//			return v_gameStatus[1];
-//		case "move":
-//			return v_gameStatus[2];
-//		case "remove":
-//			return v_gameStatus[3];
-//		case "fly":
-//			return v_gameStatus[4];
-//		case "waitingAI":
-//			return v_gameStatus[5];
-//		case "p1":
-//			return v_gameStatus[6];
-//		case "p2":
-//			return v_gameStatus[7];
-//		case "draw":
-//			return v_gameStatus[8];
-//		default:
-//			return null;
-//		}
-//	}
+	public Image getGameStatus(String str) {
+		switch (str) {
+		case "place":
+			return v_gameStatus[0];
+		case "select":
+			return v_gameStatus[1];
+		case "move":
+			return v_gameStatus[2];
+		case "P1":
+			return v_gameStatus[3];
+		case "P2":
+			return v_gameStatus[4];
+		default:
+			return null;
+		}
+	}
 	
-//	public Image getGamePhaseStr(int gamePhase) throws GameException {
-//		if(gamePhase != Game.PLACING_PHASE && gamePhase != Game.MOVING_PHASE && gamePhase != Game.FLYING_PHASE) {
-//			throw new GameException("Invalid game phase: "+gamePhase);
-//		}
-//		if(gamePhase == Game.PLACING_PHASE) {
-//			return v_gamePhases[0];
-//		} else if(gamePhase == Game.MOVING_PHASE) {
-//			return v_gamePhases[1];
-//		} else {
-//			return v_gamePhases[2];
-//		}
-//	}
-//	
-//	public Coord getPlayerYouStrCoord(Token player) throws GameException {
-//		if(player != Token.PLAYER_1 && player != Token.PLAYER_2) {
-//			throw new GameException("Invalid Token to get turn player: "+player);
-//		}
-//		if(player == Token.PLAYER_1) {
-//			return youStrCoords[0];
-//		} else {
-//			return youStrCoords[1];
-//		}
-//	}
-
 	public GameImage getPlayerTurn(String player) throws GameException {
 		if(!player.equals(P1) && !player.equals(P2)) {
 			throw new GameException("Invalid Token to get turn player: "+player);

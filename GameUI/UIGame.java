@@ -22,6 +22,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.sun.org.glassfish.external.statistics.Statistic;
+
 import jp.vdmtools.VDM.CGException;
 
 import GameLogic.*;
@@ -334,6 +336,10 @@ public class UIGame extends JFrame {
 	private class UIGamePanel extends JPanel implements MouseListener {
 
 		private static final long serialVersionUID = -7973208111694509132L;
+		
+		private static final int PLACING_PHASE = 1;
+		private static final int MOVING_PHASE = 2;
+		
 		private UIResourcesLoader uiResourcesLoader;
 		private BufferedImage background;
 		private Graphics graphics;
@@ -344,6 +350,8 @@ public class UIGame extends JFrame {
 		private int iPieceSelected = -1;
 		private int jPieceselected = -1;
 		private int game_type = -1;
+		private int game_phase = -1;
+		private Piece nextPiece = null;
 		private Stratego game = null;
 		private GameImage turnPlayer = null;
 		
@@ -354,7 +362,6 @@ public class UIGame extends JFrame {
 		
 		public void startGame(int gameType) {
 			game_type = gameType;
-			System.out.println("New game");
 			
 			try {
 				game = new Stratego();
@@ -362,8 +369,10 @@ public class UIGame extends JFrame {
 				
 				if(game_type == UIResourcesLoader.RANDOM_GAME) {
 					game.placeInitialPieces();
+				} else {
+					game_phase = PLACING_PHASE;
+					nextPiece = game.getCurrentPlayer().getNextPiece();
 				}
-				
 				hasGameRunning = true;
 				repaint();
 			} catch (CGException | GameException e) { 
@@ -380,6 +389,8 @@ public class UIGame extends JFrame {
 			iPieceSelected = -1;
 			jPieceselected = -1;
 			game_type = -1;
+			game_phase = -1;
+			nextPiece = null;
 			game = null;
 			turnPlayer = null;
 		}
@@ -452,57 +463,35 @@ public class UIGame extends JFrame {
 						GameImage reset = uiResourcesLoader.confirmReset;
 						graphics.drawImage(reset.image, reset.coord.x, reset.coord.y, this);
 					}
+					
+					// draw game status
+					UICoord c = uiResourcesLoader.game_status_coord;
+					Image status = null;
+					
+					if(gameIsOver) {
+						try {
+							status = uiResourcesLoader.getGameStatus(game.getCurrentPlayer().getName());
+							graphics.drawImage(status, c.x, c.y, this);
+						} catch (CGException e) {
+							e.printStackTrace();
+							System.exit(-1);
+						}
+					} else {
+						if(game_phase == PLACING_PHASE) {
+							status = uiResourcesLoader.getGameStatus("place");
+							Image pieceImage = uiResourcesLoader.getUnselectedPiece(nextPiece);
+							
+							UICoord c2 = uiResourcesLoader.nextPiece_coord;
+							graphics.drawImage(pieceImage, c2.x, c2.y, this);
+							
+						} else if(hasPieceSelected) {
+							status = uiResourcesLoader.getGameStatus("move");
+						} else {
+							status = uiResourcesLoader.getGameStatus("select");
+						}
+					}
+					graphics.drawImage(status, c.x, c.y, this);
 				}
-				
-//				if(hasGameRunning) {
-//					try {
-//						
-//						// draw game phase
-//						Coord coord = uiResourcesLoader.game_phase_coord;
-//						Image str = uiResourcesLoader.getGamePhaseStr(game.getCurrentGamePhase());
-//						graphics.drawImage(str,coord.x,coord.y,this);
-//						
-//						
-//						// draw game status
-//						Image status = null;
-//						if(gameIsOver) {
-//							status = uiResourcesLoader.getGameStatus(winner);
-//							graphics.drawImage(status, uiResourcesLoader.game_status_coord.x, uiResourcesLoader.game_status_coord.y, this);
-//						} else if(game_type == UIResourcesLoader.NETWORK_GAME
-//							|| (game_type == UIResourcesLoader.LOCAL_GAME 
-//								&& (uiNewGamePanel.players_type == UIResourcesLoader.HUM_HUM_GAME
-//									|| (uiNewGamePanel.players_type == UIResourcesLoader.HUM_CPU_GAME && game.getPlayer().getPlayerToken() == Token.PLAYER_1)))) {
-//							
-//							if(millWasMade) {
-//								status = uiResourcesLoader.getGameStatus("remove");
-//							} else if(selectedPiece != -1) {
-//								if(game.getPlayer().canItFly()) {
-//									status = uiResourcesLoader.getGameStatus("fly");
-//								} else {
-//									status = uiResourcesLoader.getGameStatus("move");
-//								}
-//							} else if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-//								status = uiResourcesLoader.getGameStatus("place");
-//							} else if(game.getCurrentGamePhase() == Game.MOVING_PHASE || game.getCurrentGamePhase() == Game.FLYING_PHASE) {
-//								status = uiResourcesLoader.getGameStatus("select");
-//							}
-//							graphics.drawImage(status, uiResourcesLoader.game_status_coord.x, uiResourcesLoader.game_status_coord.y, this);
-//						}
-//									
-//						// draw the you string
-//						if(game_type == UIResourcesLoader.NETWORK_GAME) {
-//							Coord c = uiResourcesLoader.getPlayerYouStrCoord(game.getPlayer().getPlayerToken());
-//							graphics.drawImage(uiResourcesLoader.youStr.image, c.x, c.y, this);
-//						} else if(uiNewGamePanel.players_type == UIResourcesLoader.HUM_CPU_GAME) {
-//							Coord c = uiResourcesLoader.getPlayerYouStrCoord(Token.PLAYER_1);
-//							graphics.drawImage(uiResourcesLoader.youStr.image, c.x, c.y, this);
-//						}
-//						
-//					} catch (GameException e) {
-//						e.printStackTrace();
-//						System.exit(-1);
-//					}
-//				}
 			}
 		}
 
@@ -519,79 +508,15 @@ public class UIGame extends JFrame {
 			}}.run();
 		}
 		
-		private void movingPhase(int boardIndex, Player player) throws GameException {
-			boolean invalidMove = false;
-			
-//			// first click selects a piece, the next one selects destination
-//			if(selectedPiece == -1) {
-//				if(game.positionHasPieceOfPlayer(boardIndex, player.getPlayerToken())) {
-//					selectedPiece = boardIndex;
-//					repaint();
-//				} else {
-//					Log.info(player.getPlayerToken()+" doesn't have a piece on board index: "+boardIndex);
-//				}
-//			} else { // a piece is selected, we just need a valid destination
-//				if(selectedPiece == boardIndex) { // unselect piece
-//					Log.info("Piece on board index: "+boardIndex+" was unselected");
-//					selectedPiece = -1;
-//					repaint();
-//				} else {
-//					if(game_type == UIResourcesLoader.LOCAL_GAME || (gClient != null && gClient.validatePieceMoving(selectedPiece, boardIndex))) {
-//						if(game.movePieceFromTo(selectedPiece, boardIndex, player.getPlayerToken()) == Game.VALID_MOVE) {
-//							if(game_type == UIResourcesLoader.LOCAL_GAME) {
-//								boardPositions[boardIndex] = player.getPlayerToken();
-//								boardPositions[selectedPiece] = Token.NO_PLAYER;
-//							}
-//							selectedPiece = -1;
-//							repaint();
-//							
-//							if(game.madeAMill(boardIndex, player.getPlayerToken())) {
-//								millWasMade = true;
-//							} else {
-//								if(game.getCurrentGamePhase() != Game.PLACING_PHASE && game.isTheGameOver()) {
-//									Log.info("Game Over! "+player.getPlayerToken()+" won");
-//									gameIsOver = true;
-//									winner = (player.getPlayerToken() == Token.PLAYER_1) ? "p1" : "p2";
-//								}
-//								if(game_type == UIResourcesLoader.LOCAL_GAME) {
-//									updateLocalGameTurn();
-//								} else {
-//									Log.info("Entering here!"); // TODO REMOVE
-//									((NetworkGame)game).setTurn(false);
-//									turnPlayer = uiResourcesLoader.getPlayerTurn(player.getPlayerToken() == Token.PLAYER_1 ? Token.PLAYER_2 : Token.PLAYER_1);
-//								}
-//							}	
-//						} else {
-//							invalidMove = true;
-//						}
-//					} else {
-//						invalidMove = true;
-//					}
-//				}
-//			}
-			
-//			if(invalidMove) {
-//				if(game.positionHasPieceOfPlayer(boardIndex, player.getPlayerToken())) {
-//					selectedPiece = boardIndex;
-//					repaint();
-//				} else {
-//					Log.info("Invalid move");
-//				}
-//			}
+		private void resetGame() {
+			int temp_game_type = game_type;
+			clearPossibleGame();
+			startGame(temp_game_type);
 		}
 		
-		private void resetGame() {
-//			if(game_type == UIResourcesLoader.LOCAL_GAME) {
-//				clearPossibleGame();
-//				try {
-//					hasGameRunning = true;
-//					game_type = UIResourcesLoader.LOCAL_GAME;
-//					createLocalGame();
-//				} catch (GameException e1) {
-//					e1.printStackTrace();
-//					System.exit(-1);
-//				}
-//			}
+		private void gameOver() {
+			gameIsOver = true;
+			repaint();
 		}
 
 		@Override
@@ -622,7 +547,24 @@ public class UIGame extends JFrame {
 											Coord boardPos = new Coord(j+1, i+1);
 											Board board = game.getBoard();
 											
-											if(hasPieceSelected) { // needs to pick destination
+											if(game_type == UIResourcesLoader.STRATEGIC_GAME && game_phase == PLACING_PHASE) {
+												if(game.getBoard().placePiece(boardPos, nextPiece, game.getCurrentPlayer()).intValue() == 0) {
+													repaint();
+												}
+												
+												if(game.getCurrentPlayer().getPieces().size() == 0) { // no more pieces to place
+													updateGameTurn();
+													if(game.getCurrentPlayer().getName().equals("P1")) {
+														nextPiece = null;
+														game_phase = MOVING_PHASE;
+													} else {
+														nextPiece = game.getCurrentPlayer().getNextPiece();
+														repaint();
+													}
+												} else {
+													nextPiece = game.getCurrentPlayer().getNextPiece();
+												}
+											} else if(hasPieceSelected) { // is picking destination
 												int moveResult = game.makeMove(new Coord(jPieceselected+1, iPieceSelected+1), new Coord(j+1, i+1)).intValue();
 												
 												if(moveResult == 6) { // tried to go to a pos with a piece of his own
@@ -632,11 +574,17 @@ public class UIGame extends JFrame {
 														jPieceselected = j;
 														repaint();
 													}
-												} else if (moveResult == 0) {
-													hasPieceSelected = false;
-													iPieceSelected = -1;
-													jPieceselected = - 1;
-													updateGameTurn();
+												} else if (moveResult == 0) { // the move was valid
+													
+													if(game.isGameOver()){
+														gameOver();
+													} else {													
+														hasPieceSelected = false;
+														iPieceSelected = -1;
+														jPieceselected = - 1;
+														updateGameTurn();
+														repaint();
+													}
 												}
 											} else { // it needs to pick piece
 												
@@ -661,97 +609,6 @@ public class UIGame extends JFrame {
 									}
 								}
 							}
-							
-//							for(int i = 0; i < board_positions.length; i++) {
-//								Coord coord = board_positions[i];
-//								if(x >= coord.x && y >= coord.y && x <= (coord.x + 32) && y <= (coord.y + 32)) { // player has clicked in a board position
-//									Log.info("Clicked in a board position: "+i);
-//									Player p = game.getPlayer();
-//
-//									// it's waiting for a piece removal
-//									if(millWasMade) { 
-//										Token oppToken = (p.getPlayerToken() == Token.PLAYER_1) ? Token.PLAYER_2 : Token.PLAYER_1;
-//
-//										if(game_type == UIResourcesLoader.LOCAL_GAME) {
-//											if(game.removePiece(i, oppToken)) {
-//												boardPositions[i] = Token.NO_PLAYER; 
-//												millWasMade = false;
-//												if(game.getCurrentGamePhase() != Game.PLACING_PHASE && game.isTheGameOver()) {
-//													Log.info("Game Over! "+p.getPlayerToken()+" won");
-//													gameIsOver = true;
-//													winner = (p.getPlayerToken() == Token.PLAYER_1) ? "p1" : "p2";
-//												}
-//												updateLocalGameTurn();
-//											} else {
-//												Log.info("You can't remove a piece from there. Try again");
-//											}
-//										} else if(game_type == UIResourcesLoader.NETWORK_GAME) {
-//											if(gClient.validatePieceRemoving(i)) {
-//												if(game.removePiece(i, oppToken)) {
-//													millWasMade = false;
-//													if(game.getCurrentGamePhase() != Game.PLACING_PHASE && game.isTheGameOver()) {
-//														Log.info("Game Over! You won");
-//														gameIsOver = true;
-//														winner =  (p.getPlayerToken() == Token.PLAYER_1) ? "p1" : "p2";
-//													}
-//													((NetworkGame)game).setTurn(false);
-//													turnPlayer = uiResourcesLoader.getPlayerTurn(p.getPlayerToken() == Token.PLAYER_1 ? Token.PLAYER_2 : Token.PLAYER_1);
-//												} else {
-//													Log.info("You can't remove a piece from there. Try again");
-//												}
-//											} else {
-//												Log.info("The server has considered that move invalid. Try again");
-//											}
-//										}
-//										repaint();
-//									} else if(game_type == UIResourcesLoader.LOCAL_GAME) {
-//										if(!waitingForAI) {
-//											if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-//												if(game.placePieceOfPlayer(i, p.getPlayerToken())) {
-//													boardPositions[i] = p.getPlayerToken();
-//													p.raiseNumPiecesOnBoard();
-//
-//													if(game.madeAMill(i, p.getPlayerToken())) {
-//														millWasMade = true; // needs to wait for at least another click
-//														repaint();
-//													} else {
-//														updateLocalGameTurn();
-//													}
-//												} else {
-//													System.out.println("You can't place a piece there. Try again");
-//												}
-//											} else if(game.getCurrentGamePhase() == Game.MOVING_PHASE || game.getCurrentGamePhase() == Game.FLYING_PHASE) {
-//												movingPhase(i, p);
-//											}
-//										}
-//									} else if(game_type == UIResourcesLoader.NETWORK_GAME) {
-//										if(((NetworkGame)game).isThisPlayerTurn()) {
-//											Player player = game.getPlayer();
-//
-//											if(game.getCurrentGamePhase() == Game.PLACING_PHASE) {
-//												if(gClient.validatePiecePlacing(i)) { // validate placing with the server
-//													if(game.placePieceOfPlayer(i, player.getPlayerToken())) {
-//														if(game.madeAMill(i, player.getPlayerToken())) {
-//															millWasMade = true;
-//														} else {
-//															((NetworkGame)game).setTurn(false);
-//															turnPlayer = uiResourcesLoader.getPlayerTurn(player.getPlayerToken() == Token.PLAYER_1 ? Token.PLAYER_2 : Token.PLAYER_1);
-//														}
-//														repaint();
-//													} else {
-//														Log.warn("The placing was considered valid with the server, but not locally");
-//													}
-//												} else {
-//													Log.info("The server has considered that move invalid. Try again");
-//												}
-//											} else if(game.getCurrentGamePhase() == Game.MOVING_PHASE || game.getCurrentGamePhase() == Game.FLYING_PHASE) {
-//												movingPhase(i, player);
-//											}
-//										}
-//									}
-//									break;
-//								}
-//							}
 					} else { // it's showing the reset warning
 						if(x >= 499 && y >= 407 && x <= 593 && y <= 446) { // yes
 							resetGame();

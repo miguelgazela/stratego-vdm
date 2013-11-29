@@ -146,6 +146,24 @@ pre pos.getX() in set {1,...,BOARDSIZE}
 post getPieceAtPosition(pos) = nil;
 --TODO devia verificar que o numero de pecas diminuiu, cm?
 
+public placePiece: Coord * Piece * Player ==> nat
+placePiece(destPos, piece, player) == (
+    if isPositionFree(destPos)
+        and (player.getName() = "P1" and destPos.getY() in set {P1_INITIAL_Y,...,P1_FINAL_Y} 
+            or player.getName() = "P2" and destPos.getY() in set {P2_INITIAL_Y,...,P2_FINAL_Y}) 
+    then (
+        board(destPos.getY())(destPos.getX()) := player.placePiece();
+        return 0;
+    )
+    else return 1;
+)
+pre player.getName() = "P1" or player.getName() = "P2" 
+    and destPos.getX() in set {1,...,BOARDSIZE}
+    and destPos.getY() in set {1,...,BOARDSIZE}
+post RESULT = 0 and getPieceAtPosition(destPos) = piece
+    or
+    RESULT <> 0 and getPieceAtPosition(destPos) = nil;
+
 
 public getBoard: () ==> seq of seq of [Piece]
 getBoard() == (

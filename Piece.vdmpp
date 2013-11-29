@@ -71,6 +71,12 @@ isHidden() == (
 )
 post RESULT = hidden;
 
+public wasSpoted: () ==> ()
+wasSpoted() == (
+  hidden := false;
+)
+post hidden = false;
+
 functions
 
 end Piece

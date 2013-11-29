@@ -190,29 +190,31 @@ makeMove(srcPos, destPos) == (
     then return 2
     elseif board.isPositionLake(destPos)
     then return 3;
-    
-    if board.isPositionFree(destPos)
-    then (
-        result := moveIsValid(srcPos, destPos, srcPiece);
 
-        if result = 0
+    if not board.isPositionFree(destPos)
+    then (
+        destPiece := board.getPieceAtPosition(destPos);
+        -- nao pode ir para uma posicao ocupada por uma peca dele
+        if destPiece.getColor() = currentPlayer.getColor()
+        then return 6;
+    );
+    
+    result := moveIsValid(srcPos, destPos, srcPiece);
+    if result = 0
+    then (
+        if board.isPositionFree(destPos)
         then (
             -- make the move
             board.movePiece(srcPos, destPos);
-            return 0;
+            return result;
         )
-        else return result;
-    );
-
-    destPiece := board.getPieceAtPosition(destPos);
-    
-    -- nao pode ir para uma posicao ocupada por uma peca dele
-    if destPiece.getColor() = currentPlayer.getColor()
-    then return 6;
-
-    -- moveu para cima de uma peca inimiga, inicia combate  
-    makeBattle(srcPos, destPos, srcPiece, destPiece);
-    return 0;
+        else (
+            -- moveu para cima de uma peca inimiga, inicia combate  
+            makeBattle(srcPos, destPos, srcPiece, destPiece);
+            return 0;
+        );
+    )
+    else return result;
 );
 
 private makeBattle: Coord * Coord * Piece * Piece ==> ()
@@ -236,17 +238,23 @@ makeBattle(srcPos, destPos, srcPiece, destPiece) == (
             currentPlayer.addDeadPiece(srcPiece);
             addDeadPieceToEnemy(destPiece);
         )
-        elseif srcPiece.getRank() > destPiece.getRank()
+        elseif srcPiece.getRank() > destPiece.getRank() and destPiece.getName() <> "FLAG"
         then (
+            board.getPieceAtPosition(srcPos).wasSpoted();
             makeBattleAux(srcPos, destPos, destPiece);
         )
-        else (
+        elseif srcPiece.getRank() < destPiece.getRank() 
+        then (
             board.removePiece(srcPos);
             currentPlayer.addDeadPiece(srcPiece);
+            board.getPieceAtPosition(destPos).wasSpoted();
         );
     
         if destPiece.getName() = "FLAG"
-        then gameOver();
+        then (
+            board.getPieceAtPosition(destPos).wasSpoted();
+            gameOver();
+        );
     )
 );
 
