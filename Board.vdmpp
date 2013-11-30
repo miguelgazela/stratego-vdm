@@ -14,7 +14,7 @@ class Board
 types
 
 values
-    private BOARDSIZE = 10;
+    public BOARDSIZE = 10;
     private P1_INITIAL_Y = 7;
     private P1_FINAL_Y = 10;
     private P2_INITIAL_Y = 1;

@@ -31,7 +31,6 @@ instance variables
     private gameIsOver: bool;
     --inv currentPlayer = playerOne or currentPlayer = playerTwo;
 
-    -- inv este plauer tem que ser o plauerone ou o player2
 operations
 
 
@@ -196,7 +195,7 @@ makeMove(srcPos, destPos) == (
         destPiece := board.getPieceAtPosition(destPos);
         -- nao pode ir para uma posicao ocupada por uma peca dele
         if destPiece.getColor() = currentPlayer.getColor()
-        then return 6;
+        then return 4;
     );
     
     result := moveIsValid(srcPos, destPos, srcPiece);
@@ -215,9 +214,13 @@ makeMove(srcPos, destPos) == (
         );
     )
     else return result;
-);
---post RESULT in set {0,...,6}
---PORQUE que retorna 0,1,2,3,6???
+)
+pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
+    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
+    and destPos.getX() in set {1,...,Board`BOARDSIZE}
+    and destPos.getY() in set {1,...,Board`BOARDSIZE}
+post RESULT in set {0,1,2,3,4,11,12,13,14};
+
 
 private makeBattle: Coord * Coord * Piece * Piece ==> ()
 makeBattle(srcPos, destPos, srcPiece, destPiece) == (
@@ -230,6 +233,7 @@ makeBattle(srcPos, destPos, srcPiece, destPiece) == (
         or
         srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL"
     then (
+        board.getPieceAtPosition(srcPos).wasSpoted();
         makeBattleAux(srcPos, destPos, destPiece);
     )
     else (
@@ -258,7 +262,28 @@ makeBattle(srcPos, destPos, srcPiece, destPiece) == (
             gameOver();
         );
     )
-);
+)
+pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
+    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
+    and destPos.getX() in set {1,...,Board`BOARDSIZE}
+    and destPos.getY() in set {1,...,Board`BOARDSIZE}
+    and srcPiece.getColor() <> destPiece.getColor()
+post board.getPieceAtPosition(srcPos) = nil
+    and (
+            ( 
+                (srcPiece.getName() = "MINER" and destPiece.getName() = "BOMB") 
+                or (srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL") 
+                or (srcPiece.getRank() > destPiece.getRank()) 
+                and board.getPieceAtPosition(destPos) = srcPiece
+            )
+        or
+        (srcPiece.getRank() = destPiece.getRank() and board.getPieceAtPosition(destPos) = nil)
+        or
+        (srcPiece.getRank() < destPiece.getRank() and board.getPieceAtPosition(destPos) = destPiece)
+    )
+    and ( destPiece.getName() <> "FLAG" and not gameIsOver)
+    and (board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 1 or board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 2);
+
 
 
 private makeBattleAux: Coord * Coord * Piece ==> ()
@@ -266,7 +291,14 @@ makeBattleAux(srcPos, destPos, destPiece) == (
     board.removePiece(destPos);
     board.movePiece(srcPos, destPos);
     addDeadPieceToEnemy(destPiece);
-);
+)
+pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
+    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
+    and destPos.getX() in set {1,...,Board`BOARDSIZE}
+    and destPos.getY() in set {1,...,Board`BOARDSIZE}
+    and board.getPieceAtPosition(srcPos).getColor() <> destPiece.getColor()
+post board.getPieceAtPosition(srcPos) = nil
+    and board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 1;
 
 
 private addDeadPieceToEnemy: Piece ==> ()
@@ -274,7 +306,10 @@ addDeadPieceToEnemy(piece) == (
     if currentPlayer = playerOne
     then playerTwo.addDeadPiece(piece)
     else playerOne.addDeadPiece(piece);                               
-);
+)
+post (currentPlayer = playerOne and len playerTwo.getDeadPieces() > len playerTwo~.getDeadPieces())
+    or
+    (currentPlayer = playerTwo and len playerOne.getDeadPieces() > len playerOne~.getDeadPieces());
 
 
 public moveIsValid: Coord * Coord * Piece ==> nat
@@ -299,8 +334,13 @@ moveIsValid(srcPos, destPos, srcPiece) == (
         then return 0
         else return 13;
     );
-);
---post RESULT in set {11,...,14}
+)
+pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
+    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
+    and destPos.getX() in set {1,...,Board`BOARDSIZE}
+    and destPos.getY() in set {1,...,Board`BOARDSIZE}
+post RESULT in set {11,...,14}
+    and (srcPiece.getName() in set {"FLAG", "BOMB"} and RESULT <> 0);
     
 
 public middlePositionsAreFree: Coord * Coord ==> bool
@@ -329,6 +369,45 @@ middlePositionsAreFree(srcPos, destPos) == (
         then return false;
     );
     return true;
+)
+pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
+    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
+    and destPos.getX() in set {1,...,Board`BOARDSIZE}
+    and destPos.getY() in set {1,...,Board`BOARDSIZE};
+
+
+public hasValidMoves: Player ==> bool
+hasValidMoves(player) == (
+    dcl surroundingPos: seq of seq of nat;
+    dcl coord: Coord;
+    dcl piece: [Piece];
+
+    for all i in set {1,..., Board`BOARDSIZE} do (
+        for all j in set {1,...,Board`BOARDSIZE} do (
+            coord := new Coord(j,i);
+            piece := board.getPieceAtPosition(coord);
+
+            if piece <> nil and piece.getColor() = player.getColor()
+            then (
+                surroundingPos := [];
+                surroundingPos := surroundingPos ^ [[i-1,j], [i,j-1], [i+1,j], [i,j+1]];
+                
+                for all possiblePos in set elems surroundingPos do (
+                    if possiblePos(1) >= 1 and possiblePos(1) <= Board`BOARDSIZE and possiblePos(2) >= 1 and possiblePos(2) <= Board`BOARDSIZE
+                    then (
+                        piece := board.getPieceAtPosition(new Coord(possiblePos(2),possiblePos(1)));
+
+                        if moveIsValid(new Coord(j,i), new Coord(possiblePos(2),possiblePos(1)), board.getPieceAtPosition(new Coord(j,i))) = 0
+                            and (
+                                piece = nil or (piece.getColor() <> player.getColor())
+                            ) 
+                        then return true;
+                    );
+                );
+            )
+        );
+    );
+    return false;
 );
 
 
@@ -337,10 +416,16 @@ updateTurn() == (
     if currentPlayer = playerOne
     then currentPlayer := playerTwo
     else currentPlayer := playerOne;
-);
+)
+post currentPlayer <> currentPlayer~
+    and (
+        (currentPlayer = playerOne and currentPlayer~ = playerTwo)
+        or 
+        (currentPlayer = playerTwo and currentPlayer~ = playerOne)
+    );
 
 
-public gameOver: () ==> ()
+private gameOver: () ==> ()
 gameOver() == (
     gameIsOver := true;
 )
@@ -350,6 +435,10 @@ post gameIsOver = true;
 
 public isGameOver: () ==> bool
 isGameOver() == (
+    if currentPlayer = playerOne
+    then gameIsOver := not hasValidMoves(playerTwo)
+    else gameIsOver := not hasValidMoves(playerOne);
+
     return gameIsOver;
 )
 post RESULT = gameIsOver;
