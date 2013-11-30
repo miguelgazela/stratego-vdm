@@ -1,0 +1,71 @@
+class TestCoord
+	operations
+		public AssertTrue : bool ==> ()
+		AssertTrue(a) == return
+		pre a;
+
+
+		public TestCreateCoord : () ==> ()
+		TestCreateCoord() ==
+		(
+			dcl c : Coord := new Coord(1,2);
+			AssertTrue(c.getY() = 2);
+			AssertTrue(c.getX() = 1);
+		);
+
+
+		public TestIllegalCoords : () ==> ()
+		TestIllegalCoords() ==
+		(
+			dcl c : Coord := new Coord(13,20);
+		);
+
+
+		public TestSetPos : () ==> ()
+		TestSetPos() ==
+		(
+			dcl c : Coord := new Coord(1,2);
+			c.setPos(3,6);
+			AssertTrue(c.getY() = 6);
+			AssertTrue(c.getX() = 3);
+		);
+
+
+		public TestIllegalSetPos: () ==> ()
+		TestIllegalSetPos() ==
+		(
+			dcl c : Coord := new Coord(1,2);
+			c.setPos(14,6);
+		);
+
+
+		public TestGets: () ==> ()
+		TestGets() ==
+		(
+			dcl c : Coord := new Coord(1,2);
+			AssertTrue(c.getY() = 2);
+			AssertTrue(c.getX() = 1);
+		);
+
+
+		public TestAreEqual: () ==> ()
+		TestAreEqual() ==
+		(
+			dcl c1: Coord := new Coord(3,4);
+			dcl c2: Coord := new Coord(3,4);
+
+			AssertTrue(Coord`areEqual(c1, c2))
+		);
+
+
+		public TestAreNotEqual: () ==> ()
+		TestAreNotEqual() ==
+		(
+			dcl c1: Coord := new Coord(3,4);
+			dcl c2: Coord := new Coord(5,4);
+
+			AssertTrue(Coord`areEqual(c1, c2))
+		);
+
+
+end TestCoord

@@ -14,6 +14,13 @@ class TestPlayer
 		);
 
 
+		public TestIllegalColor: () ==> ()
+		TestIllegalColor() ==
+		(
+			dcl p: Player := new Player("P1", <Black>);
+		);
+
+
 		public TestIllegalName: () ==> ()
 		TestIllegalName() ==
 		(
