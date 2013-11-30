@@ -1,0 +1,249 @@
+class TestPlayer
+	operations
+		public AssertTrue : bool ==> ()
+		AssertTrue(a) == return
+		pre a;
+
+
+		public TestCreatePlayer : () ==> ()
+		TestCreatePlayer() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			AssertTrue(p.getColor() = <Red>);
+			AssertTrue(p.getName() = "player1");
+		);
+
+
+		public TestIllegalName: () ==> ()
+		TestIllegalName() ==
+		(
+			dcl p: Player := new Player("", <Red>);
+		);
+
+
+		public TestGetOperations: () ==> ()
+		TestGetOperations() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			AssertTrue(p.getName() = "P1");
+			AssertTrue(p.getColor() = <Red>);
+			AssertTrue(p.getPieces() = []);
+			AssertTrue(p.getDeadPieces() = []);
+			AssertTrue(p.getScore() = 0);
+		);
+
+
+		public TestAddPiece: () ==> ()
+		TestAddPiece() ==
+		(
+			dcl player: Player := new Player("P1", <Red>);
+			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+
+			player.addPiece(piece);
+			AssertTrue(player.getPieces() <> []);
+			AssertTrue(player.getPieces() = [] ^ [piece]);
+		);
+
+		
+		public TestAddWrongColorPiece: () ==> ()
+		TestAddWrongColorPiece() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.addPiece(new Piece(1, <Blue>, "SCOUT"));
+		);
+
+
+		public TestAddSamePieceTwice: () ==> ()
+		TestAddSamePieceTwice() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			p.addPiece(piece);
+			p.addPiece(piece);
+		);
+
+
+		public TestSetPieces: () ==> ()
+		TestSetPieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.setPieces(
+				[new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT")
+			]);
+			AssertTrue(p.getPieces() <> []);
+			AssertTrue(len p.getPieces() = 40);
+		);
+
+
+		public TestSetPiecesNotEnoughPieces: () ==> ()
+		TestSetPiecesNotEnoughPieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.setPieces([new Piece(1, <Red>, "SCOUT")]);
+		);
+
+
+		public TestSetPiecesMixedColors: () ==> ()
+		TestSetPiecesMixedColors() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.setPieces(
+				[new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
+				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT")
+			]);
+		);
+
+
+		public TestRemovePieces: () ==> ()
+		TestRemovePieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			AssertTrue(p.getPieces() <> []);
+			p.removePieces();
+			AssertTrue(p.getPieces() = []);
+		);
+
+
+		public TestRemoveEmptyPieces: () ==> ()
+		TestRemoveEmptyPieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.removePieces();
+		);
+
+
+		public TestRemoveDeadPieces: () ==> ()
+		TestRemoveDeadPieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.addDeadPiece(new Piece(1, <Red>, "SCOUT"));
+			AssertTrue(p.getDeadPieces() <> []);
+			p.removeDeadPieces();
+			AssertTrue(p.getDeadPieces() = []);
+		);
+
+
+		public TestRemoveEmptyDeadPieces: () ==> ()
+		TestRemoveEmptyDeadPieces() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.removeDeadPieces();
+		);		
+
+
+		public TestPlacePiece: () ==> ()
+		TestPlacePiece() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			dcl piece: Piece;
+
+			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			piece := p.placePiece();
+			AssertTrue(piece.getRank() = 1);
+			AssertTrue(piece.getName() = "SCOUT");
+			AssertTrue(piece.getColor() = <Red>);
+			AssertTrue(p.getPieces() = []);
+		);
+
+
+		public TestPlacePieceEmpty: () ==> ()
+		TestPlacePieceEmpty() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.placePiece();
+		);
+
+
+		public TestNextPiece: () ==> ()
+		TestNextPiece() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			dcl piece: Piece;
+
+			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			piece := p.getNextPiece();
+			AssertTrue(piece.getRank() = 1);
+			AssertTrue(piece.getName() = "SCOUT");
+			AssertTrue(piece.getColor() = <Red>);
+		);
+
+
+		public TestNextPieceEmpty: () ==> ()
+		TestNextPieceEmpty() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.getNextPiece();
+		);
+
+
+		public TestAddDeadPiece: () ==> ()
+		TestAddDeadPiece() ==
+		(
+			dcl player: Player := new Player("P1", <Red>);
+			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+
+			player.addDeadPiece(piece);
+			AssertTrue(player.getDeadPieces() <> []);
+			AssertTrue(player.getDeadPieces() = [] ^ [piece]);
+		);
+
+		
+		public TestAddWrongColorDeadPiece: () ==> ()
+		TestAddWrongColorDeadPiece() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.addDeadPiece(new Piece(1, <Blue>, "SCOUT"));
+		);
+
+
+		public TestAddSameDeadPieceTwice: () ==> ()
+		TestAddSameDeadPieceTwice() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			p.addDeadPiece(piece);
+			p.addDeadPiece(piece);
+		);
+
+
+		public TestIncScore: () ==> ()
+		TestIncScore() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			AssertTrue(p.getScore() = 0);
+			p.incScore();
+			AssertTrue(p.getScore() = 1);
+		);
+
+
+		public TestResetScore: () ==> ()
+		TestResetScore() ==
+		(
+			dcl p: Player := new Player("P1", <Red>);
+			p.incScore();
+			p.resetScore();
+			AssertTrue(p.getScore() = 0);
+		);
+
+
+		--public Test: () ==> ()
+		--Test() ==
+		--(
+		--	dcl p: Player := new Player("P1", <Red>);
+		--);
+
+end TestPlayer

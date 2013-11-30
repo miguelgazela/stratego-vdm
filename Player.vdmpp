@@ -101,13 +101,12 @@ removePieces() == (
 pre pieces <> []
 post pieces = [];
 
-public removeAllPieces: () ==> ()
-removeAllPieces() == (
-  pieces := [];
+public removeDeadPieces: () ==> ()
+removeDeadPieces() == (
   deadPieces := [];
 )
-pre pieces <> []
-post pieces = [] and deadPieces = [];
+pre deadPieces <> []
+post deadPieces = [];
 
 public placePiece: () ==> Piece
 placePiece() == (

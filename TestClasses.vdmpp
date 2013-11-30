@@ -5,61 +5,6 @@ class TestFunctions
 		pre a;
 
 
-		--Testar funçoes de Pieces
-		public TestCreatePiece : () ==> ()
-		TestCreatePiece() ==
-		(
-			dcl p : Piece := new Piece(10,<Red>,"MARSHAL");
-			AssertTrue(p.getRank() = 10);
-			AssertTrue(p.getColor() = <Red>);
-			AssertTrue(p.getName() = "MARSHAL")
-		);
-
-			--Testa caso em que a peça e criada com um rank invalido
-		public TestInvRank : () ==> ()
-		TestInvRank() == 
-		(
-			dcl p : Piece := new Piece(22,<Red>,"SCOUT");
-			AssertTrue(p.getRank() = 22);
-		);
-
-			--Testa caso em que a peça e criada com uma cor invalida
-		public TestInvColor : () ==> ()
-		TestInvColor() == 
-		(
-			dcl p : Piece := new Piece(2,<Blue>,"scout");
-			AssertTrue(p.getName() = "scout");
-		);
-
-
-		--Testar funçoes de Coord
-		public TestCreateCoord : () ==> ()
-		TestCreateCoord() ==
-		(
-			dcl c : Coord := new Coord(1,2);
-			AssertTrue(c.getY() = 2);
-			AssertTrue(c.getX() = 1);
-		);
-
-		public TestSetPos : () ==> ()
-		TestSetPos() ==
-		(
-			dcl c : Coord := new Coord(1,2);
-			c.setPos(3,6);
-			AssertTrue(c.getY() = 6);
-			AssertTrue(c.getX() = 3);
-		);
-
-			--Testa caso em que a coord e criada com um X e um Y invalido
-		public TestInvXY : () ==> ()
-		TestInvXY() ==
-		(
-			dcl c : Coord := new Coord(20,20);
-			AssertTrue(c.getY() = 20);
-			AssertTrue(c.getX() = 20);
-		);
-
-
 		--Testar funçoes de Player
 		public TestCreatePlayer : () ==> ()
 		TestCreatePlayer() ==
@@ -68,6 +13,7 @@ class TestFunctions
 			AssertTrue(p1.getColor() = <Red>);
 			AssertTrue(p1.getName() = "player1");
 		);
+
 
 		public TestInvPlayer : () ==> ()
 		TestInvPlayer() ==
