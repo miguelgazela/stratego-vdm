@@ -293,7 +293,7 @@ public class UIGame extends JFrame {
 					
 					if(startGame) {
 						uiGamePanel.clearPossibleGame();
-//						uiGamePanel.startGame(game_type);
+						uiGamePanel.startGame(game_type);
 						
 						new Runnable() {@Override public void run() {
 							panel.createTransition()
@@ -305,7 +305,7 @@ public class UIGame extends JFrame {
 							.setDelay(0.3f, uiMainMenuPanel)
 							.setCallback(new SLKeyframe.Callback() {@Override public void done() {
 								currentMenuState = MenuState.Game;
-								uiGamePanel.startGame(game_type);
+//								uiGamePanel.startGame(game_type);
 							}}))
 							.play();
 						}}.run();
@@ -567,7 +567,7 @@ public class UIGame extends JFrame {
 											} else if(hasPieceSelected) { // is picking destination
 												int moveResult = game.makeMove(new Coord(jPieceselected+1, iPieceSelected+1), new Coord(j+1, i+1)).intValue();
 												
-												if(moveResult == 6) { // tried to go to a pos with a piece of his own
+												if(moveResult == 4) { // tried to go to a pos with a piece of his own
 													Piece piece = board.getPieceAtPosition(boardPos);
 													if(!piece.getName().equals("BOMB") && !piece.getName().equals("FLAG")) {
 														iPieceSelected = i;
@@ -575,7 +575,6 @@ public class UIGame extends JFrame {
 														repaint();
 													}
 												} else if (moveResult == 0) { // the move was valid
-													
 													if(game.isGameOver()){
 														gameOver();
 													} else {													
