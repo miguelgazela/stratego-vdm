@@ -1,9 +1,9 @@
 class TestPiece
 	operations
+
 		public AssertTrue : bool ==> ()
 		AssertTrue(a) == return
 		pre a;
-
 
 		public TestCreatePiece : () ==> ()
 		TestCreatePiece() ==
@@ -15,27 +15,17 @@ class TestPiece
 			AssertTrue(p.isHidden());
 		);
 
-
 		public TestIllegalRank : () ==> ()
 		TestIllegalRank() == 
 		(
 			dcl p : Piece := new Piece(22, <Red>, "SCOUT");
 		);
 
-
 		public TestIllegalName : () ==> ()
 		TestIllegalName() == 
 		(
 			dcl p : Piece := new Piece(2, <Blue>, "foo bar");
 		);
-
-
-		public TestIllegalColor : () ==> ()
-		TestIllegalColor() == 
-		(
-			dcl p : Piece := new Piece(2, <Black>, "SCOUT");
-		);
-
 
 		public TestGets : () ==> ()
 		TestGets() == 
@@ -46,14 +36,12 @@ class TestPiece
 			AssertTrue(p.getName() = "SCOUT");
 		);
 
-
 		public TestHidden: () ==> ()
 		TestHidden() ==
 		(
 			dcl p: Piece := new Piece(2, <Blue>, "BOMB");
 			AssertTrue(p.isHidden());
 		);
-
 
 		public TestSpoted: () ==> ()
 		TestSpoted() ==
@@ -64,6 +52,5 @@ class TestPiece
 			p.wasSpoted();
 			AssertTrue(not p.isHidden());
 		);
-
 
 end TestPiece

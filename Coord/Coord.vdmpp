@@ -1,0 +1,67 @@
+/**
+  Coord.
+
+  <p>
+  description
+  </p>
+
+  @version
+  @author
+*/
+
+class Coord
+
+
+  instance variables
+    private x : nat;
+    inv x >= 1 and x <= 10;
+
+    private y : nat;
+    inv y >= 1 and y <= 10;
+
+
+  operations
+
+
+    public Coord: nat * nat ==> Coord
+    Coord(x_, y_) == (
+      atomic (
+        x := x_;
+        y := y_;
+      );
+      return self
+    )
+    pre x_ in set {1,...,10} and y_ in set {1,...,10}
+    post x = x_ and y = y_;
+
+
+    public getX: () ==> nat
+    getX() == (
+      return x;
+    )
+    post RESULT = x;
+
+
+    public getY: () ==> nat
+    getY() == (
+      return y;
+    )
+    post RESULT = y;
+
+
+    public setPos: nat * nat ==> ()
+    setPos(x_, y_) == (
+      x := x_;
+      y := y_;
+    )
+    pre x_ in set {1,...,10} and y_ in set {1,...,10}
+    post x = x_ and y = y_;
+
+
+    public static areEqual: Coord * Coord ==> bool
+    areEqual(pos1, pos2) == (
+      return pos1.getX() = pos2.getX() and pos1.getY() = pos2.getY();
+    );
+
+
+end Coord

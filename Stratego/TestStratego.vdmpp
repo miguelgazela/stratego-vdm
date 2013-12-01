@@ -1,0 +1,17 @@
+class TestStratego
+	operations
+		public AssertTrue : bool ==> ()
+		AssertTrue(a) == return
+		pre a;
+
+
+		public TestCreateCoord : () ==> ()
+		TestCreateCoord() ==
+		(
+			dcl c : Coord := new Coord(1,2);
+			AssertTrue(c.getY() = 2);
+			AssertTrue(c.getX() = 1);
+		);
+
+
+end TestStratego

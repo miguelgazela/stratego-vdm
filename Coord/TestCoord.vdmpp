@@ -1,5 +1,9 @@
 class TestCoord
+
+
 	operations
+	
+	
 		public AssertTrue : bool ==> ()
 		AssertTrue(a) == return
 		pre a;
