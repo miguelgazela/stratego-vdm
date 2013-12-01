@@ -4,8 +4,7 @@ class TestPlayer
 		AssertTrue(a) == return
 		pre a;
 
-
-		public TestCreatePlayer : () ==> ()
+		public TestCreatePlayer: () ==> ()
 		TestCreatePlayer() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
@@ -13,20 +12,11 @@ class TestPlayer
 			AssertTrue(p.getName() = "player1");
 		);
 
-
-		public TestIllegalColor: () ==> ()
-		TestIllegalColor() ==
-		(
-			dcl p: Player := new Player("P1", <Black>);
-		);
-
-
 		public TestIllegalName: () ==> ()
 		TestIllegalName() ==
 		(
 			dcl p: Player := new Player("", <Red>);
 		);
-
 
 		public TestGetOperations: () ==> ()
 		TestGetOperations() ==
@@ -39,7 +29,6 @@ class TestPlayer
 			AssertTrue(p.getScore() = 0);
 		);
 
-
 		public TestAddPiece: () ==> ()
 		TestAddPiece() ==
 		(
@@ -50,7 +39,6 @@ class TestPlayer
 			AssertTrue(player.getPieces() <> []);
 			AssertTrue(player.getPieces() = [] ^ [piece]);
 		);
-
 		
 		public TestAddWrongColorPiece: () ==> ()
 		TestAddWrongColorPiece() ==
@@ -58,7 +46,6 @@ class TestPlayer
 			dcl p: Player := new Player("P1", <Red>);
 			p.addPiece(new Piece(1, <Blue>, "SPY"));
 		);
-
 
 		public TestAddSamePieceTwice: () ==> ()
 		TestAddSamePieceTwice() ==
@@ -68,7 +55,6 @@ class TestPlayer
 			p.addPiece(piece);
 			p.addPiece(piece);
 		);
-
 
 		public TestSetPieces: () ==> ()
 		TestSetPieces() ==
@@ -88,14 +74,12 @@ class TestPlayer
 			AssertTrue(len p.getPieces() = 40);
 		);
 
-
 		public TestSetPiecesNotEnoughPieces: () ==> ()
 		TestSetPiecesNotEnoughPieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			p.setPieces([new Piece(1, <Red>, "SPY")]);
 		);
-
 
 		public TestSetPiecesMixedColors: () ==> ()
 		TestSetPiecesMixedColors() ==
@@ -113,7 +97,6 @@ class TestPlayer
 			]);
 		);
 
-
 		public TestRemovePieces: () ==> ()
 		TestRemovePieces() ==
 		(
@@ -124,14 +107,12 @@ class TestPlayer
 			AssertTrue(p.getPieces() = []);
 		);
 
-
 		public TestRemoveEmptyPieces: () ==> ()
 		TestRemoveEmptyPieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			p.removePieces();
 		);
-
 
 		public TestRemoveDeadPieces: () ==> ()
 		TestRemoveDeadPieces() ==
@@ -143,14 +124,12 @@ class TestPlayer
 			AssertTrue(p.getDeadPieces() = []);
 		);
 
-
 		public TestRemoveEmptyDeadPieces: () ==> ()
 		TestRemoveEmptyDeadPieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			p.removeDeadPieces();
 		);		
-
 
 		public TestPlacePiece: () ==> ()
 		TestPlacePiece() ==
@@ -166,14 +145,12 @@ class TestPlayer
 			AssertTrue(p.getPieces() = []);
 		);
 
-
 		public TestPlacePieceEmpty: () ==> ()
 		TestPlacePieceEmpty() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.placePiece();
+			dcl piece: Piece := p.placePiece();
 		);
-
 
 		public TestNextPiece: () ==> ()
 		TestNextPiece() ==
@@ -188,14 +165,12 @@ class TestPlayer
 			AssertTrue(piece.getColor() = <Red>);
 		);
 
-
 		public TestNextPieceEmpty: () ==> ()
 		TestNextPieceEmpty() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.getNextPiece();
+			dcl piece: Piece := p.getNextPiece();
 		);
-
 
 		public TestAddDeadPiece: () ==> ()
 		TestAddDeadPiece() ==
@@ -207,7 +182,6 @@ class TestPlayer
 			AssertTrue(player.getDeadPieces() <> []);
 			AssertTrue(player.getDeadPieces() = [] ^ [piece]);
 		);
-
 		
 		public TestAddWrongColorDeadPiece: () ==> ()
 		TestAddWrongColorDeadPiece() ==
@@ -215,7 +189,6 @@ class TestPlayer
 			dcl p: Player := new Player("P1", <Red>);
 			p.addDeadPiece(new Piece(1, <Blue>, "SPY"));
 		);
-
 
 		public TestAddSameDeadPieceTwice: () ==> ()
 		TestAddSameDeadPieceTwice() ==
@@ -226,7 +199,6 @@ class TestPlayer
 			p.addDeadPiece(piece);
 		);
 
-
 		public TestIncScore: () ==> ()
 		TestIncScore() ==
 		(
@@ -236,7 +208,6 @@ class TestPlayer
 			AssertTrue(p.getScore() = 1);
 		);
 
-
 		public TestResetScore: () ==> ()
 		TestResetScore() ==
 		(
@@ -245,12 +216,5 @@ class TestPlayer
 			p.resetScore();
 			AssertTrue(p.getScore() = 0);
 		);
-
-
-		--public Test: () ==> ()
-		--Test() ==
-		--(
-		--	dcl p: Player := new Player("P1", <Red>);
-		--);
 
 end TestPlayer
