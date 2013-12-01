@@ -9,7 +9,7 @@ class TestPlayer
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			AssertTrue(p.getColor() = <Red>);
-			AssertTrue(p.getName() = "player1");
+			AssertTrue(p.getName() = "P1");
 		);
 
 		public TestIllegalName: () ==> ()
