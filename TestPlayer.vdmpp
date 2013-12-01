@@ -44,7 +44,7 @@ class TestPlayer
 		TestAddPiece() ==
 		(
 			dcl player: Player := new Player("P1", <Red>);
-			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			dcl piece: Piece := new Piece(1, <Red>, "SPY");
 
 			player.addPiece(piece);
 			AssertTrue(player.getPieces() <> []);
@@ -56,7 +56,7 @@ class TestPlayer
 		TestAddWrongColorPiece() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.addPiece(new Piece(1, <Blue>, "SCOUT"));
+			p.addPiece(new Piece(1, <Blue>, "SPY"));
 		);
 
 
@@ -64,7 +64,7 @@ class TestPlayer
 		TestAddSamePieceTwice() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			dcl piece: Piece := new Piece(1, <Red>, "SPY");
 			p.addPiece(piece);
 			p.addPiece(piece);
 		);
@@ -75,14 +75,14 @@ class TestPlayer
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			p.setPieces(
-				[new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT")
+				[new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY")
 			]);
 			AssertTrue(p.getPieces() <> []);
 			AssertTrue(len p.getPieces() = 40);
@@ -93,7 +93,7 @@ class TestPlayer
 		TestSetPiecesNotEnoughPieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.setPieces([new Piece(1, <Red>, "SCOUT")]);
+			p.setPieces([new Piece(1, <Red>, "SPY")]);
 		);
 
 
@@ -102,14 +102,14 @@ class TestPlayer
 		(
 			dcl p: Player := new Player("P1", <Red>);
 			p.setPieces(
-				[new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"),
-				new Piece(1, <Blue>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT"), new Piece(1, <Red>, "SCOUT")
+				[new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY")
 			]);
 		);
 
@@ -118,7 +118,7 @@ class TestPlayer
 		TestRemovePieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			p.addPiece(new Piece(1, <Red>, "SPY"));
 			AssertTrue(p.getPieces() <> []);
 			p.removePieces();
 			AssertTrue(p.getPieces() = []);
@@ -137,7 +137,7 @@ class TestPlayer
 		TestRemoveDeadPieces() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.addDeadPiece(new Piece(1, <Red>, "SCOUT"));
+			p.addDeadPiece(new Piece(1, <Red>, "SPY"));
 			AssertTrue(p.getDeadPieces() <> []);
 			p.removeDeadPieces();
 			AssertTrue(p.getDeadPieces() = []);
@@ -158,10 +158,10 @@ class TestPlayer
 			dcl p: Player := new Player("P1", <Red>);
 			dcl piece: Piece;
 
-			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			p.addPiece(new Piece(1, <Red>, "SPY"));
 			piece := p.placePiece();
 			AssertTrue(piece.getRank() = 1);
-			AssertTrue(piece.getName() = "SCOUT");
+			AssertTrue(piece.getName() = "SPY");
 			AssertTrue(piece.getColor() = <Red>);
 			AssertTrue(p.getPieces() = []);
 		);
@@ -181,10 +181,10 @@ class TestPlayer
 			dcl p: Player := new Player("P1", <Red>);
 			dcl piece: Piece;
 
-			p.addPiece(new Piece(1, <Red>, "SCOUT"));
+			p.addPiece(new Piece(1, <Red>, "SPY"));
 			piece := p.getNextPiece();
 			AssertTrue(piece.getRank() = 1);
-			AssertTrue(piece.getName() = "SCOUT");
+			AssertTrue(piece.getName() = "SPY");
 			AssertTrue(piece.getColor() = <Red>);
 		);
 
@@ -201,7 +201,7 @@ class TestPlayer
 		TestAddDeadPiece() ==
 		(
 			dcl player: Player := new Player("P1", <Red>);
-			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			dcl piece: Piece := new Piece(1, <Red>, "SPY");
 
 			player.addDeadPiece(piece);
 			AssertTrue(player.getDeadPieces() <> []);
@@ -213,7 +213,7 @@ class TestPlayer
 		TestAddWrongColorDeadPiece() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			p.addDeadPiece(new Piece(1, <Blue>, "SCOUT"));
+			p.addDeadPiece(new Piece(1, <Blue>, "SPY"));
 		);
 
 
@@ -221,7 +221,7 @@ class TestPlayer
 		TestAddSameDeadPieceTwice() ==
 		(
 			dcl p: Player := new Player("P1", <Red>);
-			dcl piece: Piece := new Piece(1, <Red>, "SCOUT");
+			dcl piece: Piece := new Piece(1, <Red>, "SPY");
 			p.addDeadPiece(piece);
 			p.addDeadPiece(piece);
 		);

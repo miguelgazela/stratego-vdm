@@ -61,7 +61,7 @@ isPositionLake(pos) == (
 )
 pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
 post RESULT = exists coord in set elems lakes & coord.getX() = pos.getX()
-    and coord.getY() = pos.getY();      
+    and coord.getY() = pos.getY();
 
 
 public placePiecesP1: seq of Piece ==> ()
@@ -96,8 +96,11 @@ placePieces(pieces, initialY, finalY) == (
         );
     );
 )
-pre len pieces = 40 and initialY in set {1,7} and finalY in set {4,10}
+pre len pieces = 40 and (initialY = P2_INITIAL_Y and finalY = P2_FINAL_Y or initialY = P1_INITIAL_Y and finalY = P1_FINAL_Y)
     and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor();
+--post not exists row in set {initialY,...,finalY} &
+ --       not exists pos in set elems board(row) &
+   --         pos = nil;
 
 
 public getNumberPiecesOnBoard: () ==> nat
@@ -124,10 +127,6 @@ movePiece(pos1, pos2) == (
     board(pos2.getY())(pos2.getX()) := piece;
 ) 
 pre not Coord`areEqual(pos1, pos2)
-    and pos1.getX() in set {1,...,BOARDSIZE}
-    and pos1.getY() in set {1,...,BOARDSIZE}
-    and pos2.getX() in set {1,...,BOARDSIZE}
-    and pos2.getY() in set {1,...,BOARDSIZE}
     and getPieceAtPosition(pos1) <> nil --tem que ter peca na posicao inicial
     and isPositionFree(pos2)
 post getPieceAtPosition(pos1) = nil
@@ -157,12 +156,10 @@ placePiece(destPos, piece, player) == (
     )
     else return 1;
 )
-pre player.getName() = "P1" or player.getName() = "P2" 
-    and destPos.getX() in set {1,...,BOARDSIZE}
-    and destPos.getY() in set {1,...,BOARDSIZE}
+pre player.getName() = "P1" or player.getName() = "P2"
 post RESULT = 0 and getPieceAtPosition(destPos) = piece
     or
-    RESULT <> 0 and getPieceAtPosition(destPos) = nil;
+    RESULT <> 0;
 
 
 public getBoard: () ==> seq of seq of [Piece]
@@ -175,7 +172,7 @@ post RESULT = board;
 -- change operations
 
 
-public initBoard: () ==> ()
+private initBoard: () ==> ()
 initBoard() == (
     dcl row: seq of [Piece];
     
@@ -194,7 +191,14 @@ post board <> [] and len board = BOARDSIZE
             & pos <> nil;
 
 
-public initLakes: () ==> ()
+public getLakeCoords: () ==> seq of Coord
+getLakeCoords() == (
+    return lakes;
+)
+post RESULT = lakes;
+
+
+private initLakes: () ==> ()
 initLakes() == (
     lakes := [ 
         new Coord(3,5),
@@ -220,6 +224,7 @@ addPiece(piece, pos) == (
 pre pos.getX() in set {1,...,BOARDSIZE}
     and pos.getY() in set {1,...,BOARDSIZE}
     and isPositionFree(pos)
+    and piece.getColor() = <Red> or piece.getColor() = <Blue>
 post getPieceAtPosition(pos) = piece;
 -- e o numero de pecas aumentou em 1, cm?
 
