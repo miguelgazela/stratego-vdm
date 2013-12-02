@@ -10,7 +10,7 @@ class Piece
     inv rank >= 0 and rank <= 11;
     
     private name: String;
-    inv len name > 0 and name in set {"FLAG", "SPY", "SCOUT", "MINER", "SERGEANT", "LIEUTENANT", "CAPTAIN", "MAJOR", "COLONEL", "GENERAL", "MARSHAL", "BOMB"};
+    inv len name > 0 and name in set {"FLAG", "SPY", "SCOUT", "MINER", "SERGEANT", "LIUTENANT", "CAPTAIN", "MAJOR", "COLONEL", "GENERAL", "MARSHAL", "BOMB"};
 
     private hidden: bool;
 

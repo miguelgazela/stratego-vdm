@@ -10,7 +10,7 @@ class Player
     private score: nat := 0;
     inv score >= 0;
 
-    private pieces: seq of Piece := [];
+    public pieces: seq of Piece := [];
     inv len pieces <= 40;
     inv not exists p1,p2 in set elems pieces & p1 <> p2 and p1.getColor() <> p2.getColor(); 
 

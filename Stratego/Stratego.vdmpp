@@ -22,7 +22,6 @@ values
 
 instance variables
     private defaultPieces: seq of PieceConf := [];
-    --inv len defaultPieces = 12;
 
     private playerOne: Player;
     private playerTwo: Player;
@@ -33,21 +32,18 @@ instance variables
 
 operations
 
-
--- constructor for Stratego
 public Stratego() res: Stratego == (
     board := new Board();
     playerOne := new Player("P1", <Blue>);
     playerTwo := new Player("P2", <Red>);
-    currentPlayer := playerOne;
     gameIsOver := false;
+    currentPlayer := playerOne;
     initGame();
     return self;
 );
 
 -- consult operations
     
-
 private initPieceConfigurations: () ==> ()
 initPieceConfigurations() == (
     defaultPieces := [
@@ -76,7 +72,7 @@ initGame() == (
     givePiecesP2();
 )
 pre defaultPieces = []
-    and playerOne.getPieces() = [] 
+    and playerOne.getPieces() = []
     and playerTwo.getPieces() = []
 post defaultPieces <> []
     and len playerOne.getPieces() = 40
@@ -89,7 +85,8 @@ givePiecesP1() == (
 )
 pre playerOne.getPieces() = []
 post len playerOne.getPieces() = 40
-    and not exists piece in set elems playerOne.getPieces() & piece.getColor() <> <Blue>;
+    and not exists piece in set elems playerOne.getPieces() & 
+        piece.getColor() <> playerOne.getColor();
 
 
 public givePiecesP2: () ==> ()
@@ -98,7 +95,8 @@ givePiecesP2() == (
 )
 pre playerTwo.getPieces() = []
 post len playerTwo.getPieces() = 40
-    and not exists piece in set elems playerTwo.getPieces() & piece.getColor() <> <Red>;
+    and not exists piece in set elems playerTwo.getPieces() & 
+        piece.getColor() <> playerTwo.getColor();
 
 
 private givePieces: Piece`ColorPiece * Player ==> ()
@@ -125,7 +123,7 @@ countPiecesWithRank(pieces, rank) == (
     );
     return counter;
 )
-pre rank in set {0,...,12}
+pre rank in set {0,...,11}
     and len pieces <> 0
 post RESULT in set {1,8,5,4,3,2,6};
     
@@ -219,7 +217,9 @@ pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
     and srcPos.getY() in set {1,...,Board`BOARDSIZE}
     and destPos.getX() in set {1,...,Board`BOARDSIZE}
     and destPos.getY() in set {1,...,Board`BOARDSIZE}
-post RESULT in set {0,1,2,3,4,11,12,13,14};
+post (RESULT = 0 and board.getPieceAtPosition(srcPos) = nil)
+    or
+    RESULT in set {1,2,3,4,11,12,13,14};
 
 
 private makeBattle: Coord * Coord * Piece * Piece ==> ()
@@ -292,11 +292,7 @@ makeBattleAux(srcPos, destPos, destPiece) == (
     board.movePiece(srcPos, destPos);
     addDeadPieceToEnemy(destPiece);
 )
-pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
-    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
-    and destPos.getX() in set {1,...,Board`BOARDSIZE}
-    and destPos.getY() in set {1,...,Board`BOARDSIZE}
-    and board.getPieceAtPosition(srcPos).getColor() <> destPiece.getColor()
+pre board.getPieceAtPosition(srcPos).getColor() <> destPiece.getColor()
 post board.getPieceAtPosition(srcPos) = nil
     and board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 1;
 
@@ -335,12 +331,11 @@ moveIsValid(srcPos, destPos, srcPiece) == (
         else return 13;
     );
 )
-pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
-    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
-    and destPos.getX() in set {1,...,Board`BOARDSIZE}
-    and destPos.getY() in set {1,...,Board`BOARDSIZE}
-post RESULT in set {11,...,14}
-    and (srcPiece.getName() in set {"FLAG", "BOMB"} and RESULT <> 0);
+pre not Coord`areEqual(srcPos, destPos)
+post (RESULT in set {11,...,14} or RESULT = 0)
+    and (srcPiece.getName() in set {"FLAG", "BOMB"} and RESULT <> 0)
+    and ([srcPos.getX(),srcPos.getY()] <> [destPos.getX(),destPos.getY()] and RESULT <> 0)
+    and (not middlePositionsAreFree(srcPos, destPos) and RESULT <> 0);
     
 
 public middlePositionsAreFree: Coord * Coord ==> bool
@@ -370,10 +365,7 @@ middlePositionsAreFree(srcPos, destPos) == (
     );
     return true;
 )
-pre srcPos.getX() in set {1,...,Board`BOARDSIZE}
-    and srcPos.getY() in set {1,...,Board`BOARDSIZE}
-    and destPos.getX() in set {1,...,Board`BOARDSIZE}
-    and destPos.getY() in set {1,...,Board`BOARDSIZE};
+pre not Coord`areEqual(srcPos, destPos);
 
 
 public hasValidMoves: Player ==> bool
@@ -435,15 +427,18 @@ post gameIsOver = true;
 
 public isGameOver: () ==> bool
 isGameOver() == (
-    if currentPlayer = playerOne
-    then gameIsOver := not hasValidMoves(playerTwo)
-    else gameIsOver := not hasValidMoves(playerOne);
 
-    return gameIsOver;
+    if gameIsOver
+    then return gameIsOver
+    else (
+        if currentPlayer = playerOne
+        then gameIsOver := not hasValidMoves(playerTwo)
+        else gameIsOver := not hasValidMoves(playerOne);
+
+        return gameIsOver;
+    );
 )
 post RESULT = gameIsOver;
 
-
-functions
 
 end Stratego
