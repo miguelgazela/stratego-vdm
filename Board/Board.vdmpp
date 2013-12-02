@@ -250,12 +250,9 @@ public addPiece: Piece * Coord ==> ()
 addPiece(piece, pos) == (
     board(pos.getY())(pos.getX()) := piece;
 )
-pre pos.getX() in set {1,...,BOARDSIZE}
-    and pos.getY() in set {1,...,BOARDSIZE}
-    and isPositionFree(pos)
-    and piece.getColor() = <Red> or piece.getColor() = <Blue>
+pre isPositionFree(pos)
+    and piece.getColor() in set {<Blue>, <Red>}
 post getPieceAtPosition(pos) = piece;
--- e o numero de pecas aumentou em 1, cm?
 
 
 end Board

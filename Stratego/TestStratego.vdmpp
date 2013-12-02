@@ -5,13 +5,231 @@ class TestStratego
 		pre a;
 
 
-		public TestCreateCoord : () ==> ()
-		TestCreateCoord() ==
+		public TestCreateStratego : () ==> ()
+		TestCreateStratego() ==
 		(
-			dcl c : Coord := new Coord(1,2);
-			AssertTrue(c.getY() = 2);
-			AssertTrue(c.getX() = 1);
+			dcl s : Stratego := new Stratego();
+
+			AssertTrue(s.getPlayerOne().getName() = "P1");
+			AssertTrue(s.getPlayerTwo().getName() = "P2");
+			AssertTrue(s.getCurrentPlayer() = s.getPlayerOne());
+			AssertTrue(s.isGameOver() = false);
 		);
 
+		public TestGivePiecesP1: () ==> ()
+		TestGivePiecesP1() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getPlayerOne().getPieces() <> []);
+			AssertTrue(len s.getPlayerOne().getPieces() = 40);
+			AssertTrue(s.getPlayerOne().getPieces()(1).getColor() = <Blue>);
+		);
+
+		public TestGivePiecesP2: () ==> ()
+		TestGivePiecesP2() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getPlayerTwo().getPieces() <> []);
+			AssertTrue(len s.getPlayerTwo().getPieces() = 40);
+			AssertTrue(s.getPlayerTwo().getPieces()(1).getColor() = <Red>);
+		);
+
+		public TestPlaceInitialPieces: () ==> ()
+		TestPlaceInitialPieces() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getBoard().getNumberPiecesOnBoard() = 0);
+			s.placeInitialPieces();
+			AssertTrue(s.getBoard().getNumberPiecesOnBoard() = 80);
+			AssertTrue(s.getPlayerOne().getPieces() = []);
+			AssertTrue(s.getPlayerTwo().getPieces() = []);
+
+			-- check P1 pieces
+			for i = 7 to 10 do (
+				for j = 1 to 10 do (
+					AssertTrue(s.getBoard().getPieceAtPosition(new Coord(j,i)).getColor() = <Blue>);
+				);
+			);
+
+			-- check P2 pieces
+			for i = 1 to 4 do (
+				for j = 1 to 10 do (
+					AssertTrue(s.getBoard().getPieceAtPosition(new Coord(j,i)).getColor() = <Red>);
+				);
+			);
+		);
+
+		public TestGetCurrentPlayer: () ==> ()
+		TestGetCurrentPlayer() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getCurrentPlayer() = s.getPlayerOne());
+		);
+
+
+		public TestUpdateTurn: () ==> ()
+		TestUpdateTurn() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getCurrentPlayer() = s.getPlayerOne());
+			s.updateTurn();
+			AssertTrue(s.getCurrentPlayer() = s.getPlayerTwo());
+			s.updateTurn();
+			AssertTrue(s.getCurrentPlayer() = s.getPlayerOne());
+		);
+
+
+		public TestMakeInvalidMoves: () ==> ()
+		TestMakeInvalidMoves() ==
+		(
+			dcl s : Stratego := new Stratego();
+
+			-- move empty src
+			AssertTrue(s.makeMove(new Coord(1,1), new Coord(1,2)) = 1);
+
+			-- move opponent piece
+			s.getBoard().addPiece(new Piece(1, <Red>, "SPY"), new Coord(1,1));
+			AssertTrue(s.makeMove(new Coord(1,1), new Coord(1,2)) = 2);
+
+			-- move to lake pos
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(3,4));
+			AssertTrue(s.makeMove(new Coord(3,4), new Coord(3,5)) = 3);
+
+			-- move to pos occupied by his own piece
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(4,4));
+			AssertTrue(s.makeMove(new Coord(3,4), new Coord(4,4)) = 4);			
+		);
+
+
+		public TestBothHaveValidMoves: () ==> ()
+		TestBothHaveValidMoves() ==
+		(
+			dcl s : Stratego := new Stratego();
+			s.placeInitialPieces();
+
+			AssertTrue(s.hasValidMoves(s.getPlayerOne()));
+			AssertTrue(s.hasValidMoves(s.getPlayerTwo()));
+		);
+
+
+		public TestNoValidMoves: () ==> ()
+		TestNoValidMoves() == 
+		(
+			dcl s : Stratego := new Stratego();
+
+			-- no valid moves for P1
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(2,1));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(1,2));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(2,2));
+			AssertTrue(s.hasValidMoves(s.getPlayerOne()) = false);
+
+			s.getBoard().addPiece(new Piece(1, <Red>, "SPY"), new Coord(10,10));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(9,10));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(9,9));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(10,9));
+			AssertTrue(s.hasValidMoves(s.getPlayerTwo()) = false);
+		);
+
+
+		public TestValidityOfMoves: () ==> ()
+		TestValidityOfMoves() ==
+		(
+			dcl s : Stratego := new Stratego();
+
+			-- diagonal moves
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			AssertTrue(s.moveIsValid(new Coord(1,1), new Coord(2,2), s.getBoard().getPieceAtPosition(new Coord(1,1))) = 11);
+
+			-- flags and bombs don't move
+			s.getBoard().addPiece(new Piece(0, <Blue>, "FLAG"), new Coord(2,1));
+			AssertTrue(s.moveIsValid(new Coord(2,1), new Coord(2,2), s.getBoard().getPieceAtPosition(new Coord(2,1))) = 12);
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(3,1));
+			AssertTrue(s.moveIsValid(new Coord(3,1), new Coord(3,2), s.getBoard().getPieceAtPosition(new Coord(3,1))) = 12);
+
+			-- only scouts can move more than 1 space
+			AssertTrue(s.moveIsValid(new Coord(1,1), new Coord(1,3), s.getBoard().getPieceAtPosition(new Coord(1,1))) = 13);
+
+			-- scouts can jump through other pieces or lakes
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(4,1));
+			AssertTrue(s.moveIsValid(new Coord(4,1), new Coord(4,10), s.getBoard().getPieceAtPosition(new Coord(4,1))) = 14);
+		);
+
+
+		public TestMiddlePositionsAreFree: () ==> ()
+		TestMiddlePositionsAreFree() ==
+		(
+			dcl s : Stratego := new Stratego();
+
+			-- going south
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(2,1));
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(2,3));
+			AssertTrue(s.middlePositionsAreFree(new Coord(2,1), new Coord(2,4)) = false);
+
+			-- going north
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(3,4));
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(3,3));
+			AssertTrue(s.middlePositionsAreFree(new Coord(3,4), new Coord(3,1)) = false);
+
+			-- going east
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(2,5));
+			AssertTrue(s.middlePositionsAreFree(new Coord(2,5), new Coord(5,5)) = false);
+
+			-- going west
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(5,7));
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(3,7));
+			AssertTrue(s.middlePositionsAreFree(new Coord(5,7), new Coord(2,7)) = false);
+		);
+
+		public TestSetGameOverByFlagCapture: () ==> ()
+		TestSetGameOverByFlagCapture() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.isGameOver() = false);
+
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(2,1));
+			s.getBoard().addPiece(new Piece(0, <Red>, "FLAG"), new Coord(1,1));
+
+			AssertTrue(s.makeMove(new Coord(2,1), new Coord(1,1)) = 0);
+
+			s.getCurrentPlayer().removePieces();
+			AssertTrue(s.isGameOver());
+		);
+
+
+		public TestSetGameOverByNoValidMovesP1: () ==> ()
+		TestSetGameOverByNoValidMovesP1() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.isGameOver() = false);
+			s.updateTurn();
+
+			-- no valid moves for P1
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(2,1));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(1,2));
+			s.getBoard().addPiece(new Piece(11, <Blue>, "BOMB"), new Coord(2,2));
+			AssertTrue(s.hasValidMoves(s.getPlayerOne()) = false);
+
+			s.getPlayerTwo().removePieces();
+			AssertTrue(s.isGameOver());
+		);
+
+		public TestSetGameOverByNoValidMovesP2: () ==> ()
+		TestSetGameOverByNoValidMovesP2() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.isGameOver() = false);
+
+			-- no valid moves for P2
+			s.getBoard().addPiece(new Piece(1, <Red>, "SPY"), new Coord(1,1));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(2,1));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(1,2));
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(2,2));
+			AssertTrue(s.hasValidMoves(s.getPlayerTwo()) = false);
+
+			s.getPlayerOne().removePieces();
+			AssertTrue(s.isGameOver());
+		);
 
 end TestStratego
