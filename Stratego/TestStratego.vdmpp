@@ -79,6 +79,15 @@ class TestStratego
 		);
 
 
+		public TestMakeMove: () ==> ()
+		TestMakeMove() ==
+		(
+			dcl s : Stratego := new Stratego();
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			AssertTrue(s.makeMove(new Coord(1,1), new Coord(1,2)) = 0);	
+		);
+
+
 		public TestMakeInvalidMoves: () ==> ()
 		TestMakeInvalidMoves() ==
 		(
@@ -97,7 +106,10 @@ class TestStratego
 
 			-- move to pos occupied by his own piece
 			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(4,4));
-			AssertTrue(s.makeMove(new Coord(3,4), new Coord(4,4)) = 4);			
+			AssertTrue(s.makeMove(new Coord(3,4), new Coord(4,4)) = 4);
+
+			-- move more than 1 house
+			AssertTrue(s.makeMove(new Coord(3,4), new Coord(3,2)) = 13);
 		);
 
 
@@ -153,6 +165,43 @@ class TestStratego
 			-- scouts can jump through other pieces or lakes
 			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(4,1));
 			AssertTrue(s.moveIsValid(new Coord(4,1), new Coord(4,10), s.getBoard().getPieceAtPosition(new Coord(4,1))) = 14);
+		);
+
+		public TestMakeBattles: () ==> ()
+		TestMakeBattles() ==
+		(
+			dcl s : Stratego := new Stratego();
+
+			-- Miner attacks Bomb
+			s.getBoard().addPiece(new Piece(11, <Red>, "BOMB"), new Coord(1,1));
+			s.getBoard().addPiece(new Piece(3, <Blue>, "MINER"), new Coord(1,2));
+			AssertTrue(s.makeMove(new Coord(1,2), new Coord(1,1)) = 0);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(1,1)).getName() = "MINER");
+
+			-- Spy attacks Marshall
+			s.getBoard().addPiece(new Piece(10, <Red>, "MARSHAL"), new Coord(3,1));
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(3,2));
+			AssertTrue(s.makeMove(new Coord(3,2), new Coord(3,1)) = 0);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(3,1)).getName() = "SPY");
+
+			-- same rank attack
+			s.getBoard().addPiece(new Piece(2, <Red>, "SCOUT"), new Coord(5,1));
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(5,2));
+			AssertTrue(s.makeMove(new Coord(5,2), new Coord(5,1)) = 0);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(5,1)) = nil);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(5,2)) = nil);
+
+			-- bigger rank attack
+			s.getBoard().addPiece(new Piece(1, <Red>, "SPY"), new Coord(7,1));
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(7,2));
+			AssertTrue(s.makeMove(new Coord(7,2), new Coord(7,1)) = 0);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(7,1)).getColor() = <Blue>);
+
+			-- smaller rank attack
+			s.getBoard().addPiece(new Piece(2, <Red>, "SCOUT"), new Coord(9,1));
+			s.getBoard().addPiece(new Piece(1, <Blue>, "SPY"), new Coord(9,2));
+			AssertTrue(s.makeMove(new Coord(9,2), new Coord(9,1)) = 0);
+			AssertTrue(s.getBoard().getPieceAtPosition(new Coord(9,1)).getColor() = <Red>);
 		);
 
 
@@ -230,6 +279,29 @@ class TestStratego
 
 			s.getPlayerOne().removePieces();
 			AssertTrue(s.isGameOver());
+		);
+
+
+		public TestAddDeadPieceToEnemy: () ==> ()
+		TestAddDeadPieceToEnemy() ==
+		(
+			dcl s : Stratego := new Stratego();
+			AssertTrue(s.getPlayerOne().getDeadPieces() = []);
+			AssertTrue(s.getPlayerTwo().getDeadPieces() = []);
+
+			s.getBoard().addPiece(new Piece(1, <Red>, "SPY"), new Coord(1,1));
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(1,2));
+			s.getBoard().addPiece(new Piece(3, <Red>, "MINER"), new Coord(3,1));
+			s.getBoard().addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(3,2));
+
+			-- current player is playerOne, adds to playerTwo
+			AssertTrue(s.makeMove(new Coord(1,2), new Coord(1,1)) = 0); 
+
+			s.updateTurn();
+
+			-- current player is playerTwo, adds to playerOne
+			AssertTrue(s.makeMove(new Coord(3,1), new Coord(3,2)) = 0);
+			
 		);
 
 end TestStratego

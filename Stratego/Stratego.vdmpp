@@ -212,12 +212,12 @@ class Stratego
             -- BOMB destroi qualquer peca menos o MINER
             -- FLAG morre com todos e acaba o jogo
             
-            if srcPiece.getName() = "MINER" and destPiece.getName() = "BOMB"
+            if (srcPiece.getName() = "MINER" and destPiece.getName() = "BOMB")
                 or
-                srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL"
+                (srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL")
             then (
                 board.getPieceAtPosition(srcPos).wasSpoted();
-                makeBattleAux(srcPos, destPos, destPiece);
+                makeBattleAux(srcPos, destPos, destPiece, board.getNumberPiecesOnBoard());
             )
             else (
                 if srcPiece.getRank() = destPiece.getRank()
@@ -230,7 +230,7 @@ class Stratego
                 elseif srcPiece.getRank() > destPiece.getRank() and destPiece.getName() <> "FLAG"
                 then (
                     board.getPieceAtPosition(srcPos).wasSpoted();
-                    makeBattleAux(srcPos, destPos, destPiece);
+                    makeBattleAux(srcPos, destPos, destPiece, board.getNumberPiecesOnBoard());
                 )
                 elseif srcPiece.getRank() < destPiece.getRank() 
                 then (
@@ -247,35 +247,36 @@ class Stratego
             )
         )
         pre srcPiece.getColor() <> destPiece.getColor()
-        post (destPiece.getName() <> "FLAG" and not gameIsOver and board.getPieceAtPosition(srcPos) = nil)
-            or (destPiece.getName() = "FLAG" and gameIsOver);
+        post 
+            (
+                (
+                    (
+                        (srcPiece.getRank() = 3 and destPiece.getRank() = 11)
+                        or
+                        (srcPiece.getRank() > destPiece.getRank())
+                        or
+                        (srcPiece.getRank() = 1 and destPiece.getRank() = 10)
+                    )
+                    and board.getPieceAtPosition(destPos) = srcPiece
+                )
+                or
+                (srcPiece.getRank() = destPiece.getRank() and board.getPieceAtPosition(srcPos) = nil and board.getPieceAtPosition(destPos) = nil)
+                or
+                (srcPiece.getRank() < destPiece.getRank() and board.getPieceAtPosition(destPos) = destPiece and board.getPieceAtPosition(srcPos) = nil)
+            )
+            and not gameIsOver
+            or
+            (destPiece.getName() = "FLAG" and gameIsOver);
 
-        --post    (
-         --           ( 
-           --             (srcPiece.getName() = "MINER" and destPiece.getName() = "BOMB") 
-            --            or (srcPiece.getName() = "SPY" and destPiece.getName() = "MARSHAL") 
-             --           or (srcPiece.getRank() > destPiece.getRank()) 
-              --          and board.getPieceAtPosition(destPos) = srcPiece
-               --     )
-                --or
-                --(srcPiece.getRank() = destPiece.getRank() and board.getPieceAtPosition(destPos) = nil)
-                --or
-           --     (srcPiece.getRank() < destPiece.getRank() and board.getPieceAtPosition(destPos) = destPiece)
-            --)
-            --and (destPiece.getName() <> "FLAG" and not gameIsOver and board.getPieceAtPosition(srcPos) = nil)
-            --and (destPiece.getName() <> "FLAG" and (board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 1 or board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 2));
-
-
-
-        private makeBattleAux: Coord * Coord * Piece ==> ()
-        makeBattleAux(srcPos, destPos, destPiece) == (
+        private makeBattleAux: Coord * Coord * Piece * nat ==> ()
+        makeBattleAux(srcPos, destPos, destPiece, numberPieces) == (
             board.removePiece(destPos);
             board.movePiece(srcPos, destPos);
             addDeadPieceToEnemy(destPiece);
         )
         pre board.getPieceAtPosition(srcPos).getColor() <> destPiece.getColor()
         post board.getPieceAtPosition(srcPos) = nil
-            and board.getNumberPiecesOnBoard() = board~.getNumberPiecesOnBoard() - 1;
+            and board.getNumberPiecesOnBoard() < numberPieces;
 
 
         private addDeadPieceToEnemy: Piece ==> ()
@@ -284,9 +285,9 @@ class Stratego
             then playerTwo.addDeadPiece(piece)
             else playerOne.addDeadPiece(piece);                               
         )
-        post (currentPlayer = playerOne and len playerTwo.getDeadPieces() > len playerTwo~.getDeadPieces())
-            or
-            (currentPlayer = playerTwo and len playerOne.getDeadPieces() > len playerOne~.getDeadPieces());
+        post (currentPlayer = playerOne and piece in set elems playerTwo.getDeadPieces()) 
+            or 
+            (currentPlayer = playerTwo and piece in set elems playerOne.getDeadPieces());
 
 
         public moveIsValid: Coord * Coord * Piece ==> nat
