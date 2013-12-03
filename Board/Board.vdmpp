@@ -1,0 +1,258 @@
+class Board
+
+values
+    public BOARDSIZE = 10;
+    private P1_INITIAL_Y = 7;
+    private P1_FINAL_Y = 10;
+    private P2_INITIAL_Y = 1;
+    private P2_FINAL_Y = 4;
+
+instance variables
+    private board: seq of seq of [Piece] := [];
+    private lakes: seq of Coord := [];
+    private pieceCoordsP1: seq of Coord := [];
+    private pieceCoordsP2: seq of Coord := [];
+operations
+
+-- constructor for Board
+public Board: () ==> Board
+Board() == (
+  initBoard();
+  initLakes();
+  initPieceCoords();
+);
+
+-- consult operations
+
+public getPieceAtPosition: Coord ==> [Piece]
+getPieceAtPosition(pos) == (
+    return board(pos.getY())(pos.getX());
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = board(pos.getY())(pos.getX());                         
+
+
+public isPositionFree: Coord ==> bool
+isPositionFree(pos) == (
+    return board(pos.getY())(pos.getX()) = nil 
+    and 
+    not isPositionLake(pos);
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = (board(pos.getY())(pos.getX()) = nil) or RESULT = not isPositionLake(pos);
+
+
+public isPositionLake: Coord ==> bool
+isPositionLake(pos) == (
+    return exists coord in set elems lakes & Coord`areEqual(pos, coord);
+)
+pre pos.getX() in set {1,...,BOARDSIZE} and pos.getY() in set {1,...,BOARDSIZE}
+post RESULT = exists coord in set elems lakes & coord.getX() = pos.getX()
+    and coord.getY() = pos.getY();
+
+
+public placePiecesP1: seq of Piece ==> ()
+placePiecesP1(pieces) == (
+    placePieces(pieces, <Blue>);
+)
+--as pecas tem de ter a mesma cor
+--se ja existem pecas colocadas na board, nao pode ser da mesma cor
+pre len pieces = 40
+    and not exists piece1, piece2 in set elems pieces & piece1 <> piece2 and piece1.getColor() <> piece2.getColor()
+    and forall piece in set elems pieces &
+        piece.getColor() = <Blue>
+post forall row in set {P1_INITIAL_Y,...,P1_FINAL_Y} & 
+        forall col in set {1,...,Board`BOARDSIZE} &
+            board(row)(col).getColor() = <Blue>;  
+
+
+public placePiecesP2: seq of Piece ==> ()
+placePiecesP2(pieces) == (
+    placePieces(pieces, <Red>);
+)
+pre len pieces = 40
+    and forall piece in set elems pieces &
+        piece.getColor() = <Red>
+post forall row in set {P2_INITIAL_Y,...,P2_FINAL_Y} & 
+        forall col in set {1,...,Board`BOARDSIZE} &
+            board(row)(col).getColor() = <Red>;  
+
+
+private placePieces: seq of Piece * Piece`ColorPiece ==> ()
+placePieces(pieces, playerColor) == (
+    dcl counter: nat1;
+    dcl playerPiecesCoords: seq of Coord;
+    counter := 1;
+
+    if playerColor = <Blue>
+    then playerPiecesCoords := pieceCoordsP1
+    else playerPiecesCoords := pieceCoordsP2;
+
+    for all coord in set elems playerPiecesCoords do (
+        board(coord.getY())(coord.getX()) := pieces(counter);
+        counter := counter + 1;
+    );
+)
+pre playerColor in set {<Blue>, <Red>}
+    and len pieces = 40
+    and forall piece in set elems pieces &
+        piece.getColor() = playerColor;
+
+
+public getNumberPiecesOnBoard: () ==> nat
+getNumberPiecesOnBoard() == (
+    dcl counter: nat;
+    counter := 0;
+    for all row in set elems board do (
+        for all pos in set elems row do (
+            if pos <> nil
+            then counter := counter + 1;
+        );
+    );
+    return counter;
+)
+post RESULT >= 0 and RESULT <= 80;
+
+
+public movePiece: Coord * Coord ==> ()
+movePiece(pos1, pos2) == (
+    dcl piece: Piece;
+    piece := getPieceAtPosition(pos1);
+    removePiece(pos1);
+    board(pos2.getY())(pos2.getX()) := piece;
+) 
+pre not Coord`areEqual(pos1, pos2)
+    and getPieceAtPosition(pos1) <> nil --tem que ter peca na posicao inicial
+    and isPositionFree(pos2)
+post getPieceAtPosition(pos1) = nil
+    and getPieceAtPosition(pos2) <> nil;
+
+
+public removePiece: Coord ==> ()
+removePiece(pos) == (
+    dcl piece: Piece := board(pos.getY())(pos.getX());
+    board(pos.getY())(pos.getX()) := nil;
+)
+pre pos.getX() in set {1,...,BOARDSIZE}
+    and pos.getY() in set {1,...,BOARDSIZE}
+    and getPieceAtPosition(pos) <> nil
+post getPieceAtPosition(pos) = nil;
+
+public placePiece: Coord * Piece * Player ==> nat
+placePiece(destPos, piece, player) == (
+    if isPositionFree(destPos)
+        and (player.getName() = "P1" and destPos.getY() in set {P1_INITIAL_Y,...,P1_FINAL_Y} 
+            or player.getName() = "P2" and destPos.getY() in set {P2_INITIAL_Y,...,P2_FINAL_Y}) 
+    then (
+        board(destPos.getY())(destPos.getX()) := player.placePiece();
+        return 0;
+    )
+    else return 1;
+)
+pre player.getName() = "P1" or player.getName() = "P2"
+post RESULT = 0 and getPieceAtPosition(destPos) = piece
+    or
+    RESULT <> 0;
+
+
+public getBoard: () ==> seq of seq of [Piece]
+getBoard() == (
+    return board;
+)
+post RESULT = board;
+
+-- change operations
+
+private initBoard: () ==> ()
+initBoard() == (
+    dcl row: seq of [Piece];
+    dcl i: nat := 1;
+    dcl j: nat := 1; 
+
+    while i <= 10 do (
+        row := [];
+        while j <= 10 do (
+            row := row ^ [nil];
+            j := j + 1;
+        );
+        board := board ^ [row];
+        i := i + 1;
+        j := 1;
+    ); 
+)
+pre board = []
+post board <> [] and len board = BOARDSIZE
+    and forall row in set elems board &
+        len row = 10 and not exists pos in set elems row &
+            pos <> nil;
+
+
+public getLakeCoords: () ==> seq of Coord
+getLakeCoords() == (
+    return lakes;
+)
+post RESULT = lakes;
+
+
+private initLakes: () ==> ()
+initLakes() == (
+    lakes := [ 
+        new Coord(3,5),
+        new Coord(3,6),
+        new Coord(4,5),
+        new Coord(4,6),
+        new Coord(7,5),
+        new Coord(7,6),
+        new Coord(8,5),
+        new Coord(8,6)
+    ];             
+)
+pre lakes = []
+post lakes <> [] and len lakes = 8
+    and forall coord in set elems lakes &
+        coord.getX() in set {3,4,7,8} and coord.getY() in set {5,6};
+
+
+private initPieceCoords: () ==> ()
+initPieceCoords() ==
+(
+    --P1
+    pieceCoordsP1 := [
+        new Coord(5,10),new Coord(8,7),new Coord(1,7),new Coord(7,7),new Coord(10,7),
+        new Coord(9,9),new Coord(3,7),new Coord(6,7),new Coord(8,8),new Coord(5,9),
+        new Coord(10,9),new Coord(4,10),new Coord(6,10),new Coord(3,8),new Coord(6,9),
+        new Coord(8,9),new Coord(10,10),new Coord(4,8),new Coord(10,8),new Coord(1,9),
+        new Coord(2,10),new Coord(2,9),new Coord(7,9),new Coord(1,10),new Coord(3,10),
+        new Coord(9,10),new Coord(3,9),new Coord(2,8),new Coord(6,8),new Coord(2,7),
+        new Coord(4,7),new Coord(5,7),new Coord(9,7),new Coord(5,8),new Coord(9,8),
+        new Coord(4,9),new Coord(7,10),new Coord(1,8),new Coord(7,8),new Coord(8,10)
+    ];
+    --P2
+    pieceCoordsP2 := [
+        new Coord(6,1),new Coord(3,4),new Coord(10,4),new Coord(4,4),new Coord(1,4),
+        new Coord(2,2),new Coord(8,4),new Coord(5,4),new Coord(3,3),new Coord(6,2),
+        new Coord(1,2),new Coord(7,1),new Coord(5,1),new Coord(8,3),new Coord(5,2),
+        new Coord(3,2),new Coord(1,1),new Coord(7,3),new Coord(1,3),new Coord(10,2),
+        new Coord(9,1),new Coord(9,2),new Coord(4,2),new Coord(10,1),new Coord(8,1),
+        new Coord(2,1),new Coord(8,2),new Coord(9,3),new Coord(5,3),new Coord(9,4),
+        new Coord(7,4),new Coord(6,4),new Coord(2,4),new Coord(6,3),new Coord(2,3),
+        new Coord(7,2),new Coord(4,1),new Coord(10,3),new Coord(4,3),new Coord(3,1)
+    ];
+)
+post pieceCoordsP1 <> [] and len pieceCoordsP1 = 40
+    and pieceCoordsP2 <> [] and len pieceCoordsP2 = 40
+    and forall coord in set elems pieceCoordsP1 &
+        coord.getY() in set {P1_INITIAL_Y,...,P1_FINAL_Y}
+    and forall coord in set elems pieceCoordsP2 &
+        coord.getY() in set {P2_INITIAL_Y,...,P2_FINAL_Y};
+
+public addPiece: Piece * Coord ==> ()
+addPiece(piece, pos) == (
+    board(pos.getY())(pos.getX()) := piece;
+)
+pre isPositionFree(pos)
+    and piece.getColor() in set {<Blue>, <Red>}
+post getPieceAtPosition(pos) = piece;
+
+
+end Board

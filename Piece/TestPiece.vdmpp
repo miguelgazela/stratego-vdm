@@ -1,0 +1,56 @@
+class TestPiece
+	operations
+
+		public AssertTrue : bool ==> ()
+		AssertTrue(a) == return
+		pre a;
+
+		public TestCreatePiece : () ==> ()
+		TestCreatePiece() ==
+		(
+			dcl p : Piece := new Piece(10, <Red>, "MARSHAL");
+			AssertTrue(p.getRank() = 10);
+			AssertTrue(p.getColor() = <Red>);
+			AssertTrue(p.getName() = "MARSHAL");
+			AssertTrue(p.isHidden());
+		);
+
+		public TestIllegalRank : () ==> ()
+		TestIllegalRank() == 
+		(
+			dcl p : Piece := new Piece(22, <Red>, "SCOUT");
+		);
+
+		public TestIllegalName : () ==> ()
+		TestIllegalName() == 
+		(
+			dcl p : Piece := new Piece(2, <Blue>, "foo bar");
+		);
+
+		public TestGets : () ==> ()
+		TestGets() == 
+		(
+			dcl p : Piece := new Piece(2, <Blue>, "SCOUT");
+			AssertTrue(p.getRank() = 2);
+			AssertTrue(p.getColor() = <Blue>);
+			AssertTrue(p.getName() = "SCOUT");
+		);
+
+		public TestHidden: () ==> ()
+		TestHidden() ==
+		(
+			dcl p: Piece := new Piece(2, <Blue>, "BOMB");
+			AssertTrue(p.isHidden());
+		);
+
+		public TestSpoted: () ==> ()
+		TestSpoted() ==
+		(
+			dcl p: Piece := new Piece(2, <Blue>, "SCOUT");
+			AssertTrue(p.isHidden());
+
+			p.wasSpoted();
+			AssertTrue(not p.isHidden());
+		);
+
+end TestPiece

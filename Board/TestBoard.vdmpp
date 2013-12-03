@@ -1,0 +1,351 @@
+class TestBoard
+	operations
+		public AssertTrue : bool ==> ()
+		AssertTrue(a) == return
+		pre a;
+
+
+		public TestCreateBoard : () ==> ()
+		TestCreateBoard() ==
+		(
+			dcl b : Board := new Board();
+			
+			AssertTrue(b.getBoard() <> []);
+
+			-- all positions are nil
+			for all i in set {1,...,Board`BOARDSIZE} do (
+				for all j in set {1,...,Board`BOARDSIZE} do (
+					AssertTrue(b.getBoard()(i)(j) = nil);
+				);
+			);
+
+			-- check lake positions
+			for all coord in set {new Coord(3,5), new Coord(3,6), new Coord(4,5), new Coord(4,6), new Coord(7,5), new Coord(7,6), new Coord(8,5), new Coord(8,6)} do (
+				AssertTrue(b.isPositionLake(coord));
+			);
+		);
+
+		public TestGetPieceAtPosition: () ==> ()
+		TestGetPieceAtPosition() == 
+		(
+			dcl b : Board := new Board();
+			dcl player: Player := new Player("P1", <Blue>);
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+			dcl result: nat;
+
+			AssertTrue(b.getPieceAtPosition(new Coord(1,1)) = nil);
+
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(10,10), piece, player);
+			AssertTrue(b.getPieceAtPosition(new Coord(10,10)) = piece);
+		);
+
+
+		public TestGetPieceAtIllegalPosition: () ==> ()
+		TestGetPieceAtIllegalPosition() == 
+		(
+			dcl b : Board := new Board();
+			dcl piece: Piece := b.getPieceAtPosition(new Coord(13,20));
+		);
+
+
+		public TestIsPositionFree: () ==> ()
+		TestIsPositionFree() == 
+		(
+			dcl b : Board := new Board();
+
+			for all i in set {1,...,Board`BOARDSIZE} do (
+				for all j in set {1,...,Board`BOARDSIZE} do (
+					if [j,i] in set {[3,5], [3,6], [4,5], [4,6], [7,5], [7,6], [8,5], [8,6]}
+					then AssertTrue(not b.isPositionFree(new Coord(j,i)))
+					else AssertTrue(b.isPositionFree(new Coord(j,i)));
+				);
+			);
+		);
+
+
+		public TestIsPositionLake: () ==> ()
+		TestIsPositionLake() == 
+		(
+			dcl b : Board := new Board();
+
+			for all coord in set {new Coord(3,5), new Coord(3,6), new Coord(4,5), new Coord(4,6), new Coord(7,5), new Coord(7,6), new Coord(8,5), new Coord(8,6)} do (
+				AssertTrue(b.isPositionLake(coord));
+			);
+
+			AssertTrue(not b.isPositionLake(new Coord(1,1)));
+		);
+
+
+		public TestIsPositionFreeIllegalPosition: () ==> ()
+		TestIsPositionFreeIllegalPosition() == 
+		(
+			dcl b : Board := new Board();
+			AssertTrue(b.isPositionFree(new Coord(13,20)));
+		);
+
+
+		public TestPlacePieces: () ==> ()
+		TestPlacePieces() == 
+		(
+			dcl b : Board := new Board();
+			b.placePiecesP1([new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY"), new Piece(1, <Blue>, "SPY")
+			]);
+
+			b.placePiecesP2([new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY")
+			]);
+		);
+
+
+		public TestPlacePiecesFewPieces: () ==> ()
+		TestPlacePiecesFewPieces() == 
+		(
+			dcl b : Board := new Board();
+			b.placePiecesP1([new Piece(1, <Red>, "SPY")]);
+		);
+
+
+		public TestPlacePiecesMixedColors: () ==> ()
+		TestPlacePiecesMixedColors() == 
+		(
+			dcl b : Board := new Board();
+			b.placePiecesP1([new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Blue>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY")
+			]);
+		);
+
+		
+		public TestGetNumberPiecesBoard: () ==> ()
+		TestGetNumberPiecesBoard() == 
+		(
+			dcl b : Board := new Board();
+			AssertTrue(b.getNumberPiecesOnBoard() = 0);
+
+			b.placePiecesP2([new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"),
+				new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY"), new Piece(1, <Red>, "SPY")
+			]);
+			AssertTrue(b.getNumberPiecesOnBoard() = 40);
+		);
+
+
+		public TestMovePiece: () ==> ()
+		TestMovePiece() == 
+		(
+			dcl b : Board := new Board();
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+
+			b.addPiece(piece, new Coord(1,1));
+			b.movePiece(new Coord(1,1), new Coord(1,2));
+			AssertTrue(b.getPieceAtPosition(new Coord(1,1)) = nil);
+			AssertTrue(b.getPieceAtPosition(new Coord(1,2)) = piece);
+		);
+
+
+		public TestMovePieceSameCoord: () ==> ()
+		TestMovePieceSameCoord() == 
+		(
+			dcl b : Board := new Board();
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+
+			b.addPiece(piece, new Coord(1,1));
+			b.movePiece(new Coord(1,1), new Coord(1,1));
+		);
+
+
+		public TestMovePieceNoPiece: () ==> ()
+		TestMovePieceNoPiece() == 
+		(
+			dcl b : Board := new Board();
+			b.movePiece(new Coord(1,1), new Coord(1,2));
+		);
+
+
+		public TestMovePieceOccupiedDest: () ==> ()
+		TestMovePieceOccupiedDest() == 
+		(
+			dcl b : Board := new Board();
+			b.addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			b.addPiece(new Piece(1, <Red>, "SPY"), new Coord(1,2));
+			b.movePiece(new Coord(1,1), new Coord(1,2));
+		);
+
+
+		public TestRemovePiece: () ==> ()
+		TestRemovePiece() == 
+		(
+			dcl b : Board := new Board();
+			b.addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			b.removePiece(new Coord(1,1));
+			AssertTrue(b.getPieceAtPosition(new Coord(1,1)) = nil);
+		);
+
+
+		public TestRemovePieceNoPiece: () ==> ()
+		TestRemovePieceNoPiece() == 
+		(
+			dcl b : Board := new Board();
+			b.removePiece(new Coord(1,1));
+		);
+
+
+		public TestPlacePiece: () ==> ()
+		TestPlacePiece() == 
+		(
+			dcl b : Board := new Board();
+			dcl player: Player := new Player("P1", <Blue>);
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+			dcl player2: Player := new Player("P2", <Red>);
+			dcl piece2: Piece := new Piece(1, <Red>, "SPY");
+			dcl result: nat;
+
+			AssertTrue(b.getPieceAtPosition(new Coord(1,1)) = nil);
+			AssertTrue(b.getNumberPiecesOnBoard() = 0);
+
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(10,10), piece, player);
+			AssertTrue(result = 0);
+			AssertTrue(b.getPieceAtPosition(new Coord(10,10)) = piece);
+			AssertTrue(b.getNumberPiecesOnBoard() = 1);
+
+			player2.addPiece(piece2);
+			result := b.placePiece(new Coord(1,1), piece2, player2);
+			AssertTrue(result = 0);
+			AssertTrue(b.getPieceAtPosition(new Coord(1,1)) = piece2);
+			AssertTrue(b.getNumberPiecesOnBoard() = 2);
+		);
+
+
+		public TestPlacePieceWrongPlayer: () ==> ()
+		TestPlacePieceWrongPlayer() == 
+		(
+			dcl b : Board := new Board();
+			dcl player: Player := new Player("UNKNOWN", <Blue>);
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+			dcl result: nat;
+
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(10,10), piece, player);
+		);
+
+
+		public TestPlacePieceWrongArea: () ==> ()
+		TestPlacePieceWrongArea() == 
+		(
+			dcl b : Board := new Board();
+			dcl player: Player := new Player("P1", <Blue>);
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+			dcl result: nat;
+
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(1,1), piece, player);
+			AssertTrue(result <> 0);
+		);
+
+
+		public TestPlacePieceOccupiedPos: () ==> ()
+		TestPlacePieceOccupiedPos() == 
+		(
+			dcl b : Board := new Board();
+			dcl player: Player := new Player("P1", <Blue>);
+			dcl piece: Piece := new Piece(1, <Blue>, "SPY");
+			dcl result: nat;
+
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(10,10), piece, player);
+			piece := new Piece(2, <Blue>, "SCOUT");
+			player.addPiece(piece);
+			result := b.placePiece(new Coord(10,10), piece, player);
+			AssertTrue(result <> 0);
+		);
+
+
+		public TestGetBoard: () ==> ()
+		TestGetBoard() ==
+		(
+			dcl b : Board := new Board();
+			AssertTrue(b.getBoard() <> []);
+		);
+
+
+		public TestInitBoard: () ==> ()
+		TestInitBoard() == 
+		(
+			dcl b : Board := new Board();
+			AssertTrue(b.getBoard() = [
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil],
+				[nil,nil,nil,nil,nil,nil,nil,nil,nil,nil]
+			]);
+		);
+
+
+		public TestInitAndGetLakes: () ==> ()
+		TestInitAndGetLakes() == 
+		(
+			dcl b : Board := new Board();
+			for all coord in set elems b.getLakeCoords() do (
+				AssertTrue(b.isPositionLake(coord));
+			);
+		);
+
+
+		public TestAddPiece: () ==> ()
+		TestAddPiece() == 
+		(
+			dcl b : Board := new Board();
+			b.addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			b.addPiece(new Piece(1, <Red>, "SPY"), new Coord(1,2));
+		);
+
+
+		public TestAddPieceIllegalPos: () ==> ()
+		TestAddPieceIllegalPos() == 
+		(
+			dcl b : Board := new Board();
+			b.addPiece(new Piece(1, <Blue>, "SPY"), new Coord(15,1));
+		);
+
+
+		public TestAddPieceOccupiedPos: () ==> ()
+		TestAddPieceOccupiedPos() == 
+		(
+			dcl b : Board := new Board();
+			b.addPiece(new Piece(1, <Blue>, "SPY"), new Coord(1,1));
+			b.addPiece(new Piece(2, <Blue>, "SCOUT"), new Coord(1,1));
+		);
+
+
+end TestBoard
