@@ -10,4 +10,5 @@ A successful git branching model - [link](http://nvie.com/posts/a-successful-git
 ### Screenshots
 
 ![alt text](screenshots/menu.png "")
+![alt text](screenshots/newgame.png "")
 ![alt text](screenshots/gameboard.png "")
